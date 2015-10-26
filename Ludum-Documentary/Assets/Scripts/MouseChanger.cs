@@ -3,6 +3,7 @@ using System.Collections;
 
 public class MouseChanger : MonoBehaviour
 {
+
 	/** Gravity Textures */
 	public Texture2D gravityOn;
 	public Texture2D gravityOff;
@@ -22,26 +23,42 @@ public class MouseChanger : MonoBehaviour
 	public Texture2D strongForceOff;
 
 	public CursorMode cursorMode = CursorMode.Auto;
-	public Vector2 hotSpot = Vector2.zero;
+	public Vector2 hotSpot = new Vector2 (100.0f, 0.0f);
 
 	void Update ()
 	{
-		if (Input.GetKey (KeyCode.Q)) {
-			Cursor.SetCursor (gravityOn, hotSpot, cursorMode);
-		} else if (Input.GetKey (KeyCode.A)) {
-			Cursor.SetCursor (gravityOff, hotSpot, cursorMode);
-		} else if (Input.GetKey (KeyCode.W)) {
-			Cursor.SetCursor (currentOn, hotSpot, cursorMode);
-		} else if (Input.GetKey (KeyCode.S)) {
-			Cursor.SetCursor (currentOff, hotSpot, cursorMode);
-		} else if (Input.GetKey (KeyCode.E)) {
-			Cursor.SetCursor (weakForceOn, hotSpot, cursorMode);
-		} else if (Input.GetKey (KeyCode.D)) {
-			Cursor.SetCursor (weakForceOff, hotSpot, cursorMode);
-		} else if (Input.GetKey (KeyCode.R)) {
-			Cursor.SetCursor (strongForceOn, hotSpot, cursorMode);
-		} else if (Input.GetKey (KeyCode.F)) {
-			Cursor.SetCursor (strongForceOff, hotSpot, cursorMode);
+		if (cInput.GetKey ("GravityWell")) {
+			if (cInput.GetKey ("Down")) {
+				Cursor.SetCursor (gravityOff, hotSpot, cursorMode);
+			} else {
+				Cursor.SetCursor (gravityOn, hotSpot, cursorMode);
+			}
+		} else if (cInput.GetKey ("GravityShift")) {
+			//Cursor.SetCursor (gravityOff, hotSpot, cursorMode);
+		} else if (cInput.GetKey ("Magnetic")) {
+			if (cInput.GetKey ("Down")) {
+				Cursor.SetCursor (magnetOff, hotSpot, cursorMode);
+			} else {
+				Cursor.SetCursor (magnetOn, hotSpot, cursorMode);
+			}
+		} else if (cInput.GetKey ("Electric")) {
+			if (cInput.GetKey ("Down")) {
+				Cursor.SetCursor (currentOff, hotSpot, cursorMode);
+			} else {
+				Cursor.SetCursor (currentOn, hotSpot, cursorMode);
+			}
+		} else if (cInput.GetKey ("Weak")) {
+			if (cInput.GetKey ("Down")) {
+				Cursor.SetCursor (weakForceOff, hotSpot, cursorMode);
+			} else {
+				Cursor.SetCursor (weakForceOn, hotSpot, cursorMode);
+			}
+		} else if (cInput.GetKey ("Strong")) {
+			if (cInput.GetKey ("Down")) {
+				Cursor.SetCursor (strongForceOff, hotSpot, cursorMode);
+			} else {
+				Cursor.SetCursor (strongForceOn, hotSpot, cursorMode);
+			}
 		} else {
 			Cursor.SetCursor (null, Vector2.zero, cursorMode);
 		}
