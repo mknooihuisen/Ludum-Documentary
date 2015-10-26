@@ -37,9 +37,7 @@ public class GravityWell : MonoBehaviour
 				}
 			} else if (cInput.GetKey ("Down")) {
 				GameObject[] objs = FindObjectsOfType<GameObject> ();
-				Behaviour com = GetComponent ("Halo");
-				com.GetType ();
-				
+								
 				foreach (GameObject go in objs) {
 					if (go.GetComponent<Rigidbody> () != null && go.GetComponent<Rigidbody> ().mass > 0) {
 						if (Mathf.Abs (go.transform.position.x - transform.position.x) < 10.0f && Mathf.Abs (go.transform.position.y - transform.position.y) < 10.0f) {
