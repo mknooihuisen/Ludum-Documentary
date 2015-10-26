@@ -7,6 +7,8 @@ public class MouseChanger : MonoBehaviour
 	/** Gravity Textures */
 	public Texture2D gravityOn;
 	public Texture2D gravityOff;
+	public Texture2D gravityShiftOn;
+	public Texture2D gravityShiftOff;
 
 	/** Electromagnetism Textures */
 	public Texture2D currentOn;
@@ -34,7 +36,11 @@ public class MouseChanger : MonoBehaviour
 				Cursor.SetCursor (gravityOn, hotSpot, cursorMode);
 			}
 		} else if (cInput.GetKey ("GravityShift")) {
-			//Cursor.SetCursor (gravityOff, hotSpot, cursorMode);
+			if (cInput.GetKey ("Down")) {
+				Cursor.SetCursor (gravityShiftOff, hotSpot, cursorMode);
+			} else {
+				Cursor.SetCursor (gravityShiftOn, hotSpot, cursorMode);
+			}
 		} else if (cInput.GetKey ("Magnetic")) {
 			if (cInput.GetKey ("Down")) {
 				Cursor.SetCursor (magnetOff, hotSpot, cursorMode);
