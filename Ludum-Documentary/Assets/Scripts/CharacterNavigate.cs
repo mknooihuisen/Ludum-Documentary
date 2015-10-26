@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CharacterNavigate : MonoBehaviour {
+public class CharacterNavigate : MonoBehaviour
+{
 
 	private int navpointLayer = 30;
 	private int navMask;
@@ -14,7 +15,7 @@ public class CharacterNavigate : MonoBehaviour {
 	private GameObject goingToNav;
 	private Vector3 directionToNav;
 
-	private Vector3 [] directions;
+	private Vector3[] directions;
 
 	private Rigidbody rb;
 	private float timer;
@@ -27,7 +28,8 @@ public class CharacterNavigate : MonoBehaviour {
 	private float distToGround;
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+	{
 		navMask = 1 << navpointLayer;
 		Debug.Log (navMask);
 
@@ -55,7 +57,8 @@ public class CharacterNavigate : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void FixedUpdate () {
+	void FixedUpdate ()
+	{
 		checkGround ();
 
 
@@ -74,8 +77,8 @@ public class CharacterNavigate : MonoBehaviour {
 			//transform.Translate (Vector3.forward * speed * Time.deltaTime);
 
 
-			if(timer >= walkSpeed) {
-				rb.AddForce(transform.forward * speed);
+			if (timer >= walkSpeed) {
+				rb.AddForce (transform.forward * speed);
 				timer = 0.0f;
 			}
 			timer += Time.deltaTime;
@@ -88,14 +91,15 @@ public class CharacterNavigate : MonoBehaviour {
 
 	}
 
-	float checkGround (Vector3 startPos ) {
+	float checkGround (Vector3 startPos)
+	{
 
 		RaycastHit hit;
-		if(Physics.Raycast(startPos, Vector3.down, out hit, Mathf.Infinity)) {
+		if (Physics.Raycast (startPos, Vector3.down, out hit, Mathf.Infinity)) {
 
 			//if this is the player, we care about onGround
-			if(startPos == transform.position) {
-				if(hit.distance <= distToGround) {
+			if (startPos == transform.position) {
+				if (hit.distance <= distToGround) {
 					onGround = true;
 				} else {
 					onGround = false;
@@ -109,37 +113,46 @@ public class CharacterNavigate : MonoBehaviour {
 		return Mathf.Infinity;
 	}
 
-	float checkGround () {
+	float checkGround ()
+	{
 		return checkGround (transform.position);
 	}
 
-	void OnTriggerEnter(Collider col) {
+	void OnTriggerEnter (Collider col)
+	{
 		if (col.gameObject == goingToNav) {
 			lastNav = goingToNav;
 
 			//check nav settings
-			NavPointBehavior myNav = lastNav.GetComponent<NavPointBehavior>();
-			if(myNav.verticalJump) {
-				jumpVertical();
-			} else if(myNav.horizontalJump) {
-				jumpHorizontal();
-			} else if(myNav.die) {
-				die();
-			} else if(myNav.end) {
-				reachedEnd();
+			NavPointBehavior myNav = lastNav.GetComponent<NavPointBehavior> ();
+			if (myNav.verticalJump) {
+				if (myNav.CanMakeJump ()) {
+					jumpVertical ();
+				}
+			} else if (myNav.horizontalJump) {
+				if (myNav.CanMakeJump ()) {
+					jumpHorizontal ();
+				}
+
+			} else if (myNav.die) {
+				die ();
+			} else if (myNav.end) {
+				reachedEnd ();
 			}
 
-			lastNav.SetActive(false);
+			lastNav.SetActive (false);
 			goingToNav = GetNextNavPoint ();
 			timer = -0.2f;
 		}
 	}
 
-	void reachedEnd() {
+	void reachedEnd ()
+	{
 		Debug.Log ("You Win!");
 	}
 
-	void jumpHorizontal() {
+	void jumpHorizontal ()
+	{
 		if (onGround) {
 			float up = horizontalJumpPower / 4.0f;
 			rb.AddForce (Vector3.forward * horizontalJumpPower);
@@ -147,7 +160,8 @@ public class CharacterNavigate : MonoBehaviour {
 		}
 	}
 
-	void jumpVertical() {
+	void jumpVertical ()
+	{
 		if (onGround) {
 			float forward = verticalJumpPower / 3.0f;
 			rb.AddForce (Vector3.up * verticalJumpPower);
@@ -159,7 +173,8 @@ public class CharacterNavigate : MonoBehaviour {
 	/**
 	 * Get the next nav point we should go to
 	 */
-	GameObject GetNextNavPoint() {
+	GameObject GetNextNavPoint ()
+	{
 
 		RaycastHit hit;
 
@@ -167,11 +182,11 @@ public class CharacterNavigate : MonoBehaviour {
 		foreach (Vector3 dir in directions) {
 
 			//we hit something
-			if(Physics.Raycast(transform.position, dir, out hit, Mathf.Infinity, navMask)) {
+			if (Physics.Raycast (transform.position, dir, out hit, Mathf.Infinity, navMask)) {
 
 				//make sure we weren't just there
-				if(hit.transform.gameObject != lastNav) {
-					Debug.DrawLine(transform.position, hit.transform.position);
+				if (hit.transform.gameObject != lastNav) {
+					Debug.DrawLine (transform.position, hit.transform.position);
 					directionToNav = dir;
 					return hit.transform.gameObject;
 				}
@@ -182,7 +197,8 @@ public class CharacterNavigate : MonoBehaviour {
 
 	}
 
-	public void die() {
+	public void die ()
+	{
 		Destroy (this.gameObject);
 	}	
 }
