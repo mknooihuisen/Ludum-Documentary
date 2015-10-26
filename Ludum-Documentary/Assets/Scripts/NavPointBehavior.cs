@@ -7,6 +7,25 @@ public class NavPointBehavior : MonoBehaviour {
 
 	public bool horizontalJump;
 
+	public GameObject jumpLocation;
+
 	public bool die;
+
+	public bool end;
+
+	public bool forceProceed;
+
+	private float distToGround = 1.0f;
+	private float aboveGroundDist = 3.0f;
+
+	void Start() {
+
+		RaycastHit hit;
+		if (Physics.Raycast (transform.position, Vector3.down, out hit, aboveGroundDist)) {
+			float newPlace = hit.point.y + distToGround;
+			Vector3 current = transform.position;
+			transform.position = new Vector3(current.x, newPlace, current.z);
+		}
+	}
 
 }

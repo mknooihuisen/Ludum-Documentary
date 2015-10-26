@@ -8,7 +8,7 @@ public class CharacterNavigate : MonoBehaviour {
 
 	private Vector3 lastDir;
 
-	public float speed = 0.01f;
+	public float speed;
 
 	private GameObject lastNav;
 	private GameObject goingToNav;
@@ -18,11 +18,18 @@ public class CharacterNavigate : MonoBehaviour {
 
 	private Rigidbody rb;
 	private float timer;
-	public float walkSpeed = 0.5f;
+	public float walkSpeed;
+	public float verticalJumpPower;
+	public float horizontalJumpPower;
+	private bool onGround;
+
+	public float maxDropDistance;
+	private float distToGround;
 
 	// Use this for initialization
 	void Start () {
 		navMask = 1 << navpointLayer;
+		Debug.Log (navMask);
 
 		directions = new Vector3[4];
 		directions [0] = Vector3.right;
@@ -38,14 +45,22 @@ public class CharacterNavigate : MonoBehaviour {
 
 		rb = GetComponent<Rigidbody> ();
 		timer = 0.0f;
+
+		verticalJumpPower *= 10.0f;
+		horizontalJumpPower *= 10.0f;
+
+		distToGround = gameObject.GetComponent<CapsuleCollider> ().bounds.extents.y + 0.1f;
+
+
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
+		checkGround ();
 
 
-		//make sure we have a point to go to
-		if (goingToNav != null) {
+		//make sure we have a point to go to and we're on the ground
+		if (goingToNav != null && onGround) {
 
 
 			//rotate if necessary
@@ -69,18 +84,81 @@ public class CharacterNavigate : MonoBehaviour {
 			goingToNav = GetNextNavPoint ();
 		}
 
+		Debug.Log ("Heading to: " + goingToNav);
+
+	}
+
+	float checkGround (Vector3 startPos ) {
+
+		RaycastHit hit;
+		if(Physics.Raycast(startPos, Vector3.down, out hit, Mathf.Infinity)) {
+
+			//if this is the player, we care about onGround
+			if(startPos == transform.position) {
+				if(hit.distance <= distToGround) {
+					onGround = true;
+				} else {
+					onGround = false;
+				}
+			}
+
+			return hit.distance;
+		}
+
+		//You missed.
+		return Mathf.Infinity;
+	}
+
+	float checkGround () {
+		return checkGround (transform.position);
 	}
 
 	void OnTriggerEnter(Collider col) {
 		if (col.gameObject == goingToNav) {
 			lastNav = goingToNav;
+
+			//check nav settings
+			NavPointBehavior myNav = lastNav.GetComponent<NavPointBehavior>();
+			if(myNav.verticalJump) {
+				jumpVertical();
+			} else if(myNav.horizontalJump) {
+				jumpHorizontal();
+			} else if(myNav.die) {
+				die();
+			} else if(myNav.end) {
+				reachedEnd();
+			}
+
 			lastNav.SetActive(false);
 			goingToNav = GetNextNavPoint ();
 			timer = -0.2f;
 		}
 	}
+
+	void reachedEnd() {
+		Debug.Log ("You Win!");
+	}
+
+	void jumpHorizontal() {
+		if (onGround) {
+			float up = horizontalJumpPower / 4.0f;
+			rb.AddForce (Vector3.forward * horizontalJumpPower);
+			rb.AddForce (Vector3.up * up);
+		}
+	}
+
+	void jumpVertical() {
+		if (onGround) {
+			float forward = verticalJumpPower / 3.0f;
+			rb.AddForce (Vector3.up * verticalJumpPower);
+			rb.AddForce (Vector3.forward * forward);
+		}
+	}
 	
 
+	/**
+	 * Get the next nav point we should go to
+	 */
 	GameObject GetNextNavPoint() {
 
 		RaycastHit hit;
@@ -103,4 +181,8 @@ public class CharacterNavigate : MonoBehaviour {
 		return null;
 
 	}
+
+	public void die() {
+		Destroy (this.gameObject);
+	}	
 }
