@@ -8,18 +8,21 @@ public class CharacterNavigate : MonoBehaviour {
 
 	private Vector3 lastDir;
 
-	public float speed = 2;
+	public float speed = 0.01f;
 
-	private GameObject newNav;
+	private GameObject lastNav;
+	private GameObject goingToNav;
+	private Vector3 directionToNav;
 
 	private Vector3 [] directions;
+
+	private Rigidbody rb;
+	private float timer;
+	public float walkSpeed = 0.5f;
 
 	// Use this for initialization
 	void Start () {
 		navMask = 1 << navpointLayer;
-		//lastDir = "";
-		newNav = transform.gameObject;
-
 
 		directions = new Vector3[4];
 		directions [0] = Vector3.right;
@@ -27,43 +30,77 @@ public class CharacterNavigate : MonoBehaviour {
 		directions [2] = Vector3.left;
 		directions [3] = Vector3.up;
 
+		//set object to correct starting rotation
+		transform.Rotate (new Vector3 (0, 90.0f, 0));
+
+		goingToNav = GetNextNavPoint ();
+		lastNav = null;
+
+		rb = GetComponent<Rigidbody> ();
+		timer = 0.0f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		//are we at a nav point? Lets find another.
-		if (transform.position == newNav.transform.position) {
-			GetNextNavPoint ();
-		}
 
-		//rotate if necessary
-		if (transform.rotation != newNav.transform.rotation) {
-			Quaternion.Slerp (transform.rotation, Quaternion.LookRotation (newNav.transform.position - transform.position), speed * Time.deltaTime);
-		} else {
+		//make sure we have a point to go to
+		if (goingToNav != null) {
+
+
+			//rotate if necessary
+			if (directionToNav == Vector3.left) {
+				transform.Rotate (0, 180.0f, 0);
+				directionToNav = Vector3.right;
+			}
+
+
 			//move toward point
-			transform.Translate (transform.forward * speed);
+			//transform.Translate (Vector3.forward * speed * Time.deltaTime);
+
+
+			if(timer >= walkSpeed) {
+				rb.AddForce(transform.forward * speed);
+				timer = 0.0f;
+			}
+			timer += Time.deltaTime;
+		
+		} else {
+			goingToNav = GetNextNavPoint ();
 		}
 
 	}
 
-	void GetNextNavPoint() {
+	void OnTriggerEnter(Collider col) {
+		if (col.gameObject == goingToNav) {
+			lastNav = goingToNav;
+			lastNav.SetActive(false);
+			goingToNav = GetNextNavPoint ();
+			timer = -0.2f;
+		}
+	}
+	
+
+	GameObject GetNextNavPoint() {
 
 		RaycastHit hit;
 
+		//all four directions
 		foreach (Vector3 dir in directions) {
 
-			if(Physics.Raycast(transform.position, dir, out hit, Mathf.Infinity)) {
+			//we hit something
+			if(Physics.Raycast(transform.position, dir, out hit, Mathf.Infinity, navMask)) {
 
-				Debug.Log("Hit!");
-				Debug.DrawLine(transform.position, hit.transform.position);
-
+				//make sure we weren't just there
+				if(hit.transform.gameObject != lastNav) {
+					Debug.DrawLine(transform.position, hit.transform.position);
+					directionToNav = dir;
+					return hit.transform.gameObject;
+				}
 			}
 		}
 
+		return null;
+
 	}
-
-
-
-
 }
