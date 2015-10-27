@@ -42,26 +42,32 @@ public class NavPointBehavior : MonoBehaviour
 			if (horizontalJump) {
 				sideForce = character.GetComponent<CharacterNavigate> ().horizontalJumpPower;
 				upForce = sideForce / 4.0f;
+
 			} else if (verticalJump) {
 				upForce = character.GetComponent<CharacterNavigate> ().verticalJumpPower;
 				sideForce = upForce / 3.0f;
 			}
+
+			// Convert the forces to velocity based on V = sqrt(F / M)
+			sideForce = Mathf.Sqrt (sideForce / character.GetComponent<Rigidbody> ().mass);
+			upForce = Mathf.Sqrt (upForce / character.GetComponent<Rigidbody> ().mass);
+
 			float dist = hit.distance;
-			float gravity = -9.8f * 100;
+			float gravity = 9.8f;
 			float heightA = transform.position.y - dist;
 			float heightB = jumpLocation.transform.position.y + (jumpLocation.GetComponent<Collider> ().bounds.extents.y);
 			float size = jumpLocation.GetComponent<Collider> ().bounds.extents.x;
 			if (transform.position.x < jumpLocation.transform.position.x) {
 				size = -size;
 			}
-			float distanceB = jumpLocation.transform.position.x + size;
+			float distanceB = Mathf.Abs ((jumpLocation.transform.position.x + size) - character.transform.position.x);
 			float vertForce = upForce;
-			float horiForce = character.GetComponent<Rigidbody> ().velocity.x + sideForce;
-			float time = Mathf.Abs (vertForce / gravity);
-			float jumpDist = (vertForce + (time * gravity));
+			float horiForce = sideForce;
+			float time = distanceB * 10 / horiForce;
+			float jumpDist = vertForce * time - (0.5f * gravity * time * time);
 			Debug.Log (heightA + " " + heightB + " " + distanceB + " " + vertForce + " " + horiForce + " " + time + " " + gravity + " : " + jumpDist);
 
-			if (heightA + vertForce + (time * gravity / 100) >= heightB && horiForce * time >= distanceB) {
+			if (jumpDist > Mathf.Abs (heightB - heightA)) {
 				return true;
 			} else {
 				return false;
