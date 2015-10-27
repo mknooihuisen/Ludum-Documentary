@@ -16,13 +16,15 @@ public class NavPointBehavior : MonoBehaviour
 
 	public bool forceProceed;
 
-	public GameObject character;
+	private GameObject character;
 
 	private float distToGround = 1.0f;
 	private float aboveGroundDist = 3.0f;
 
 	void Start ()
 	{
+
+		character = GameObject.FindGameObjectWithTag ("Player");
 
 		RaycastHit hit;
 		if (Physics.Raycast (transform.position, Vector3.down, out hit, aboveGroundDist)) {

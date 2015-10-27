@@ -77,7 +77,6 @@ public class CameraMovement : MonoBehaviour {
 		else {
 			float distCovered = (Time.time - startTime) * moveSpeed;
 			float fracJourney = distCovered / journeyLength;
-			//transform.position = location;
 			transform.position = Vector3.Lerp(oldLocation, location, fracJourney);
 		}
 	

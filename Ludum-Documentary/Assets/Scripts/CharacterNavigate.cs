@@ -27,6 +27,15 @@ public class CharacterNavigate : MonoBehaviour
 	public float maxDropDistance;
 	private float distToGround;
 
+	//Death variables
+	private bool dead;
+	private Vector3 deathPoint;
+	public float crumpleSpeed;
+	private Vector3 finalRestingPlace;
+	private float startTime, journeyLength;
+
+	private Animator anim;
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -52,7 +61,8 @@ public class CharacterNavigate : MonoBehaviour
 
 		distToGround = gameObject.GetComponent<CapsuleCollider> ().bounds.extents.y + 0.1f;
 
-
+		//anim = GetComponentInChildren<Animator> ();
+		dead = false;
 	}
 	
 	// Update is called once per frame
@@ -72,11 +82,10 @@ public class CharacterNavigate : MonoBehaviour
 			}
 
 
-			//move toward point
-			//transform.Translate (Vector3.forward * speed * Time.deltaTime);
 
 
-			if (timer >= walkSpeed) {
+
+			if (timer >= walkSpeed && !dead) {
 				rb.AddForce (transform.forward * speed);
 				timer = 0.0f;
 			}
@@ -97,6 +106,7 @@ public class CharacterNavigate : MonoBehaviour
 			if (startPos == transform.position) {
 				if (hit.distance <= distToGround) {
 					onGround = true;
+					////anim.SetBool("jumping", false);
 				} else {
 					onGround = false;
 				}
@@ -150,6 +160,7 @@ public class CharacterNavigate : MonoBehaviour
 	void jumpHorizontal ()
 	{
 		if (onGround) {
+			//anim.SetBool("jumping", true);
 			float up = horizontalJumpPower / 4.0f;
 			rb.AddForce (Vector3.forward * horizontalJumpPower);
 			rb.AddForce (Vector3.up * up);
@@ -159,6 +170,7 @@ public class CharacterNavigate : MonoBehaviour
 	void jumpVertical ()
 	{
 		if (onGround) {
+			//anim.SetBool("jumping", true);
 			float forward = verticalJumpPower / 3.0f;
 			rb.AddForce (Vector3.up * verticalJumpPower);
 			rb.AddForce (Vector3.forward * forward);
@@ -195,6 +207,8 @@ public class CharacterNavigate : MonoBehaviour
 
 	public void die ()
 	{
-		Destroy (this.gameObject);
+		dead = true;
+		rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionZ ;
+
 	}	
 }
