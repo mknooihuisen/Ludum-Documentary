@@ -91,6 +91,8 @@ MonoBehaviour:
   die: 0
   end: 0
   forceProceed: 0
+  simPrefab: {fileID: 415128, guid: 56a634ac78a334ca8a09fac119dc0fa4, type: 2}
+  simulating: 0
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
@@ -122,6 +124,14 @@ Prefab:
       propertyPath: m_UseLightProbes
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: forceProceed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 0}
+      propertyPath: simPrefab
+      value: 
+      objectReference: {fileID: 415128, guid: 56a634ac78a334ca8a09fac119dc0fa4, type: 2}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 196736}
