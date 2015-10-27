@@ -15,6 +15,9 @@ public class LevelSettingsManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
+		if (isPlayerDead) {
+			//Debug.Log("Ouch!");
+		} 
 	}
 
 	public void toggleActive() {

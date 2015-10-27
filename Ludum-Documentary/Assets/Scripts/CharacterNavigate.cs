@@ -79,6 +79,7 @@ public class CharacterNavigate : MonoBehaviour
 
 		//anim = GetComponentInChildren<Animator> ();
 		dead = false;
+		//die ();
 	}
 	
 	// Update is called once per frame
@@ -243,8 +244,13 @@ public class CharacterNavigate : MonoBehaviour
 	public void die ()
 	{
 		dead = true;
-		rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionZ ;
+		rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezePositionZ ;
 		levelSettings.isPlayerDead = true;
+
+		if(rb.velocity.x == 0.0f) {
+			rb.AddForce(Vector3.forward * 100.0f);
+			Debug.Log("Dead");
+        }
 
 	}	
 }
