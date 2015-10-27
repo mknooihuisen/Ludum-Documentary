@@ -41,9 +41,19 @@ public class CharacterNavigate : MonoBehaviour
 
 	public float navDist;
 
+	private LevelSettingsManager levelSettings;
+
 	// Use this for initialization
 	void Start ()
 	{
+		//Dynamically grab level settings
+		GameObject [] temp = GameObject.FindGameObjectsWithTag ("GameController");
+		foreach (GameObject go in temp) {
+			if (go.name == "_LevelSettings") {
+				levelSettings = go.GetComponent<LevelSettingsManager> ();
+			}
+		}
+
 		previousVelocity = Vector3.zero;
 		navMask = 1 << navpointLayer;
 
@@ -234,6 +244,7 @@ public class CharacterNavigate : MonoBehaviour
 	{
 		dead = true;
 		rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezePositionZ ;
+		levelSettings.isPlayerDead = true;
 
 	}	
 }
