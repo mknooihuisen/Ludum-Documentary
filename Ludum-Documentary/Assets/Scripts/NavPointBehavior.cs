@@ -30,8 +30,14 @@ public class NavPointBehavior : MonoBehaviour
 	private CharacterNavigate charScript;
 	private float simTimer;
 
+	public float jumpPower = 1.0f;
+
 	void Start ()
 	{
+
+		if (jumpPower == 0.0f) {
+			jumpPower = 1.0f;
+		}
 
 		character = GameObject.FindGameObjectWithTag ("Player");
 

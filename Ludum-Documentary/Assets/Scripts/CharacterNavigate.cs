@@ -186,9 +186,12 @@ public class CharacterNavigate : MonoBehaviour
 	{
 		if (onGround || isSimChar) {
 			//anim.SetBool("jumping", true);
-			float up = horizontalJumpPower / 4.0f;
+			float up = horizontalJumpPower / 2.0f;
+
 			Rigidbody rb = GetComponent<Rigidbody> ();
-			rb.AddForce (Vector3.forward * 45.0f);
+
+			NavPointBehavior nav = goingToNav.GetComponent<NavPointBehavior>();
+			rb.AddForce (Vector3.right * horizontalJumpPower * Mathf.Abs(nav.jumpPower));
 			rb.AddForce (Vector3.up * up);
 		}
 	}
@@ -201,8 +204,8 @@ public class CharacterNavigate : MonoBehaviour
 
 			Rigidbody rb = GetComponent<Rigidbody> ();
 
-
-			rb.AddForce (Vector3.up * verticalJumpPower);
+			NavPointBehavior nav = goingToNav.GetComponent<NavPointBehavior>();
+			rb.AddForce (Vector3.up * verticalJumpPower * Mathf.Abs(nav.jumpPower));
 			rb.AddForce (Vector3.forward * forward);
 		}
 	}
