@@ -22,7 +22,7 @@ public class CharacterNavigate : MonoBehaviour
 	public float walkSpeed;
 	public float verticalJumpPower;
 	public float horizontalJumpPower;
-	private bool onGround;
+	public bool onGround { get; private set; }
 
 	public float maxDropDistance;
 	private float distToGround;
@@ -35,6 +35,8 @@ public class CharacterNavigate : MonoBehaviour
 	private float startTime, journeyLength;
 
 	private Animator anim;
+
+	public bool isSimChar;
 
 	// Use this for initialization
 	void Start ()
@@ -70,6 +72,10 @@ public class CharacterNavigate : MonoBehaviour
 	{
 		checkGround ();
 
+		//die when falling too far
+		if (onGround && goingToNav == null && Mathf.Abs (transform.position.y - lastNav.transform.position.y) > maxDropDistance) {
+			die ();
+		}
 
 		//make sure we have a point to go to and we're on the ground
 		if (goingToNav != null && onGround) {
@@ -90,6 +96,7 @@ public class CharacterNavigate : MonoBehaviour
 				timer = 0.0f;
 			}
 			timer += Time.deltaTime;
+		
 		
 		} else {
 			goingToNav = GetNextNavPoint ();
@@ -126,6 +133,8 @@ public class CharacterNavigate : MonoBehaviour
 
 	void OnTriggerEnter (Collider col)
 	{
+		Debug.Log ("I hit: " + col.gameObject.name);
+
 		if (col.gameObject == goingToNav) {
 			lastNav = goingToNav;
 
@@ -157,21 +166,26 @@ public class CharacterNavigate : MonoBehaviour
 		Debug.Log ("You Win!");
 	}
 
-	void jumpHorizontal ()
+	public void jumpHorizontal ()
 	{
-		if (onGround) {
+		if (onGround || isSimChar) {
 			//anim.SetBool("jumping", true);
 			float up = horizontalJumpPower / 4.0f;
-			rb.AddForce (Vector3.forward * horizontalJumpPower);
+			Rigidbody rb = GetComponent<Rigidbody>();
+			rb.AddForce (Vector3.forward * 45.0f);
 			rb.AddForce (Vector3.up * up);
 		}
 	}
 
-	void jumpVertical ()
+	public void jumpVertical ()
 	{
-		if (onGround) {
+		if (onGround || isSimChar) {
 			//anim.SetBool("jumping", true);
 			float forward = verticalJumpPower / 3.0f;
+
+			Rigidbody rb = GetComponent<Rigidbody>();
+
+
 			rb.AddForce (Vector3.up * verticalJumpPower);
 			rb.AddForce (Vector3.forward * forward);
 		}
@@ -183,6 +197,9 @@ public class CharacterNavigate : MonoBehaviour
 	 */
 	GameObject GetNextNavPoint ()
 	{
+		if (isSimChar) {
+			return null;
+		}
 
 		RaycastHit hit;
 
@@ -196,6 +213,7 @@ public class CharacterNavigate : MonoBehaviour
 				if (hit.transform.gameObject != lastNav) {
 					Debug.DrawLine (transform.position, hit.transform.position);
 					directionToNav = dir;
+
 					return hit.transform.gameObject;
 				}
 			}
