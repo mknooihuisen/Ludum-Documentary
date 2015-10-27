@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Name: M3D_AttachmentPointConfiguration
   m_EditorClassIdentifier: 
   attachmentPointPresets:
-  - targetBone: 7248616e64
+  - targetBone: rHand
     positionOffset: {x: 0, y: 0, z: 0}
     rotationOffset: {x: 0, y: 0, z: 0}
     autoMirror: 1
-    layoutClassName: 53696e676c6550726f7044656661756c744c61796f7574
+    layoutClassName: SinglePropDefaultLayout
