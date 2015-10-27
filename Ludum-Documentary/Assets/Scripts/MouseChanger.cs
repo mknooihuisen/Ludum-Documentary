@@ -26,9 +26,25 @@ public class MouseChanger : MonoBehaviour
 
 	public CursorMode cursorMode = CursorMode.Auto;
 	public Vector2 hotSpot = new Vector2 (100.0f, 0.0f);
+	public bool characterDead;
+	private LevelSettingsManager levelSettings;
+
+	void Start ()
+	{
+		GameObject [] temp = GameObject.FindGameObjectsWithTag ("GameController");
+		foreach (GameObject go in temp) {
+			if (go.name == "_LevelSettings") {
+				levelSettings = go.GetComponent<LevelSettingsManager> ();
+			}
+		}
+	}
 
 	void Update ()
 	{
+		if (levelSettings.isPlayerDead) {
+			Cursor.SetCursor (null, Vector2.zero, cursorMode);
+			return;
+		}
 		if (cInput.GetKey ("GravityWell")) {
 			if (cInput.GetKey ("Down")) {
 				Cursor.SetCursor (gravityOff, hotSpot, cursorMode);

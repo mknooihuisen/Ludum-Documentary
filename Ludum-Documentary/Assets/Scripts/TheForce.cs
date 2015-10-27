@@ -22,14 +22,24 @@ public class TheForce : MonoBehaviour
 
 	private int force = NO_FORCE;
 
+	public bool characterDead;
+
 	private List<GameObject> caught;
 
 	private GameObject manipulated;
 
 	public Material silicon;
 
+	private LevelSettingsManager levelSettings;
+
 	void Start ()
 	{
+		GameObject [] temp = GameObject.FindGameObjectsWithTag ("GameController");
+		foreach (GameObject go in temp) {
+			if (go.name == "_LevelSettings") {
+				levelSettings = go.GetComponent<LevelSettingsManager> ();
+			}
+		}
 		caught = new List<GameObject> ();
 	}
 
@@ -80,6 +90,18 @@ public class TheForce : MonoBehaviour
 
 	void FixedUpdate ()
 	{
+		if (levelSettings.isPlayerDead) {
+			if (this.transform.position != new Vector3 (0, -100.0f, -100.0f)) {
+				this.transform.position = new Vector3 (0, -100.0f, -100.0f);
+			}
+			force = NO_FORCE;
+			if (manipulated != null) {
+				Select (manipulated, true);
+				manipulated = null;
+			}
+			RemoveCaughtObjects ();
+			return;
+		}
 		if (cInput.GetKey ("GravityWell") && (force == GRAVITY_WELL || force == NO_FORCE)) {
 			force = GRAVITY_WELL;
 			GameObject hitObject = PlaceForce ();
@@ -181,7 +203,9 @@ public class TheForce : MonoBehaviour
 				}
 			}
 		} else {
-			this.transform.position = new Vector3 (0, -100.0f, 1.0f);
+			if (this.transform.position != new Vector3 (0, -100.0f, -100.0f)) {
+				this.transform.position = new Vector3 (0, -100.0f, -100.0f);
+			}
 			force = NO_FORCE;
 			if (manipulated != null) {
 				Select (manipulated, true);

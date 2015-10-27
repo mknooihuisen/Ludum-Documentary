@@ -25,5 +25,8 @@ public class MovingNavPoint : MonoBehaviour
 			holdToPosition = holdTo.transform.position;
 			this.transform.position = new Vector3 (holdToPosition.x + x, holdToPosition.y + y, 0);
 		}
+		if (!holdTo.activeSelf) {
+			gameObject.SetActive (false);
+		}
 	}
 }
