@@ -723,6 +723,14 @@ Prefab:
       propertyPath: navDist
       value: 15
       objectReference: {fileID: 0}
+    - target: {fileID: 11415890, guid: a2550920f050b425d9f70b72bc683227, type: 2}
+      propertyPath: verticalJumpPower
+      value: 45.0400009
+      objectReference: {fileID: 0}
+    - target: {fileID: 11415890, guid: a2550920f050b425d9f70b72bc683227, type: 2}
+      propertyPath: termiinalVelocity
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: a2550920f050b425d9f70b72bc683227, type: 2}
   m_IsPrefabParent: 0

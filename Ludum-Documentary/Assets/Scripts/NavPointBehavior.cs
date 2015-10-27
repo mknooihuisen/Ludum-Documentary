@@ -80,7 +80,7 @@ public class NavPointBehavior : MonoBehaviour
 				simulating = false;
 				Debug.Log("Passed Sim");
 				//Destroy(simChar);
-			} else if(charScript.maxDropDistance >= Mathf.Abs(transform.position.y - simChar.transform.position.y)) {
+			} else if(charScript.termiinalVelocity >= Mathf.Abs(transform.position.y - simChar.transform.position.y)) {
 				jumpSafe = false;
 				simulating = false;
 				Debug.Log("Failed Sim");

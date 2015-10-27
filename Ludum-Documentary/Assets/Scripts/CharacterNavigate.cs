@@ -24,8 +24,9 @@ public class CharacterNavigate : MonoBehaviour
 	public float horizontalJumpPower;
 	public bool onGround { get; private set; }
 
-	public float maxDropDistance;
+	public float termiinalVelocity;
 	private float distToGround;
+	private Vector3 previousVelocity;
 
 	//Death variables
 	private bool dead;
@@ -43,6 +44,7 @@ public class CharacterNavigate : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
+		previousVelocity = Vector3.zero;
 		navMask = 1 << navpointLayer;
 
 		directions = new Vector3[4];
@@ -74,10 +76,13 @@ public class CharacterNavigate : MonoBehaviour
 	{
 		checkGround ();
 
-		//die when falling too far
-		if (onGround && lastNav != null && Mathf.Abs (transform.position.y - lastNav.transform.position.y) > maxDropDistance) {
-			die ();
+		//Detect Terminal Velocity
+		if(Mathf.Abs(previousVelocity.x - rb.velocity.x) > termiinalVelocity || Mathf.Abs(previousVelocity.y - rb.velocity.y) > termiinalVelocity)
+			die();
+		else {
+			previousVelocity = rb.velocity;
 		}
+
 
 		//make sure we have a point to go to and we're on the ground
 		if (goingToNav != null && onGround) {
