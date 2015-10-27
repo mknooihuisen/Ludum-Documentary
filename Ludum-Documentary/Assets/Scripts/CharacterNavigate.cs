@@ -73,7 +73,7 @@ public class CharacterNavigate : MonoBehaviour
 		checkGround ();
 
 		//die when falling too far
-		if (onGround && goingToNav == null && Mathf.Abs (transform.position.y - lastNav.transform.position.y) > maxDropDistance) {
+		if (onGround && goingToNav == null && lastNav != null && Mathf.Abs (transform.position.y - lastNav.transform.position.y) > maxDropDistance) {
 			die ();
 		}
 
