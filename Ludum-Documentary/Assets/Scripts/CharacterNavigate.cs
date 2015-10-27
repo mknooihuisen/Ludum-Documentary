@@ -31,7 +31,6 @@ public class CharacterNavigate : MonoBehaviour
 	void Start ()
 	{
 		navMask = 1 << navpointLayer;
-		Debug.Log (navMask);
 
 		directions = new Vector3[4];
 		directions [0] = Vector3.right;
@@ -86,9 +85,6 @@ public class CharacterNavigate : MonoBehaviour
 		} else {
 			goingToNav = GetNextNavPoint ();
 		}
-
-		Debug.Log ("Heading to: " + goingToNav);
-
 	}
 
 	float checkGround (Vector3 startPos)
