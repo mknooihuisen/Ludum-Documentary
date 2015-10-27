@@ -38,6 +38,8 @@ public class CharacterNavigate : MonoBehaviour
 
 	public bool isSimChar;
 
+	public float navDist;
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -73,7 +75,7 @@ public class CharacterNavigate : MonoBehaviour
 		checkGround ();
 
 		//die when falling too far
-		if (onGround && goingToNav == null && lastNav != null && Mathf.Abs (transform.position.y - lastNav.transform.position.y) > maxDropDistance) {
+		if (onGround && lastNav != null && Mathf.Abs (transform.position.y - lastNav.transform.position.y) > maxDropDistance) {
 			die ();
 		}
 
@@ -98,7 +100,7 @@ public class CharacterNavigate : MonoBehaviour
 			timer += Time.deltaTime;
 		
 		
-		} else {
+		} else if(goingToNav == null){
 			goingToNav = GetNextNavPoint ();
 		}
 	}
@@ -207,7 +209,7 @@ public class CharacterNavigate : MonoBehaviour
 		foreach (Vector3 dir in directions) {
 
 			//we hit something
-			if (Physics.Raycast (transform.position, dir, out hit, Mathf.Infinity, navMask)) {
+			if (Physics.Raycast (transform.position, dir, out hit, navDist, navMask)) {
 
 				//make sure we weren't just there
 				if (hit.transform.gameObject != lastNav) {
