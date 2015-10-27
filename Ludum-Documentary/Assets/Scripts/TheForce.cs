@@ -7,9 +7,10 @@ public class TheForce : MonoBehaviour
 	private static int BACKGROUND = 15;
 	private static int MANIPULATABLE = 14;
 
-	private static float WELL_STRENGTH = 30.0f;
+	private static float WELL_STRENGTH = 3000.0f;
 	private static float FIELD_STRENGTH = 35.0f;
 	private static float TERMINAL_SPEED = 50.0f;
+	private static float FORCE_MULTIPLIER = 300.0f;
 
 	private static int NO_FORCE = 0;
 	private static int GRAVITY_WELL = 1;
@@ -24,6 +25,8 @@ public class TheForce : MonoBehaviour
 	private List<GameObject> caught;
 
 	private GameObject manipulated;
+
+	public Material silicon;
 
 	void Start ()
 	{
@@ -40,6 +43,26 @@ public class TheForce : MonoBehaviour
 			hitObject = hit.collider.gameObject;
 			clickedPosition.z = 1.0f;
 			transform.position = clickedPosition;
+		}
+		return hitObject;
+	}
+
+	GameObject GenerateObject ()
+	{
+		Ray ray = Camera.main.ScreenPointToRay (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, 0));
+		RaycastHit hit;
+		GameObject hitObject = null;
+		if (Physics.Raycast (ray.origin, ray.direction, out hit, 3000.0f, 1 << BACKGROUND)) {
+			Vector3 clickedPosition = hit.point;
+			hitObject = hit.collider.gameObject;
+			clickedPosition.z = 1.0f;
+			GameObject sphere = GameObject.CreatePrimitive (PrimitiveType.Sphere);
+			sphere.transform.position = clickedPosition;
+			sphere.AddComponent<Rigidbody> ();
+			sphere.AddComponent<ManipulatableObject> ();
+			sphere.layer = MANIPULATABLE;
+			sphere.GetComponent<Renderer> ().material = silicon;
+			sphere.GetComponent<ManipulatableObject> ().hasMass = true;
 		}
 		return hitObject;
 	}
@@ -87,10 +110,9 @@ public class TheForce : MonoBehaviour
 			} else {
 				RemoveCaughtObjects ();
 			}
-		} else if (cInput.GetKey ("Weak") && (force == WEAK || force == NO_FORCE)) {
+		} else if (cInput.GetKey ("Electric") && (force == ELECTRIC || force == NO_FORCE)) {
 			GameObject hitObject = ForceOnObject ();
 			if (hitObject != null) {
-				Renderer r = hitObject.GetComponent<Renderer> ();
 				if (manipulated == null) {
 					manipulated = hitObject;
 					Select (manipulated, false);
@@ -100,11 +122,33 @@ public class TheForce : MonoBehaviour
 					Select (manipulated, false);
 				}
 				if (cInput.GetKeyDown ("Up")) {
-					r.material.color = new Color (r.material.color.r, r.material.color.g + 0.5f, r.material.color.b);
+					manipulated.GetComponent<ManipulatableObject> ().powered = true;
+				} else if (cInput.GetKeyDown ("Down")) {
+					manipulated.GetComponent<ManipulatableObject> ().powered = false;
+				}
+			} else if (hitObject == null) {
+				if (manipulated != null) {
+					Select (manipulated, true);
+					manipulated = null;
+				}
+			}
+		} else if (cInput.GetKey ("Weak") && (force == WEAK || force == NO_FORCE)) {
+			GameObject hitObject = ForceOnObject ();
+			if (hitObject != null) {
+				if (manipulated == null) {
+					manipulated = hitObject;
+					Select (manipulated, false);
+				} else if (manipulated != hitObject) {
+					Select (manipulated, true);
+					manipulated = hitObject;
+					Select (manipulated, false);
+				}
+				if (cInput.GetKeyDown ("Up")) {
+					manipulated.GetComponent<ManipulatableObject> ().isRadioactive = true;
 					Select (manipulated, true);
 					manipulated = null;
 				} else if (cInput.GetKeyDown ("Down")) {
-					r.material.color = new Color (r.material.color.r, r.material.color.g - 0.5f, r.material.color.b);
+					manipulated.GetComponent<ManipulatableObject> ().isRadioactive = false;
 					Select (manipulated, true);
 					manipulated = null;
 				}
@@ -117,7 +161,6 @@ public class TheForce : MonoBehaviour
 		} else if (cInput.GetKey ("Strong") && (force == STRONG || force == NO_FORCE)) {
 			GameObject hitObject = ForceOnObject ();
 			if (hitObject != null) {
-				Renderer r = hitObject.GetComponent<Renderer> ();
 				if (manipulated == null) {
 					manipulated = hitObject;
 					Select (manipulated, false);
@@ -126,11 +169,11 @@ public class TheForce : MonoBehaviour
 					manipulated = hitObject;
 					Select (manipulated, false);
 				}
-				if (cInput.GetKeyDown ("Up")) {
-					// Do nothing for now...
-				} else if (cInput.GetKeyDown ("Down")) {
+				if (cInput.GetKeyDown ("Down")) {
 					hitObject.SetActive (false);
 				}
+			} else if (cInput.GetKeyDown ("Up")) {
+				GenerateObject ();
 			} else {
 				if (manipulated != null) {
 					Select (manipulated, true);
@@ -177,7 +220,7 @@ public class TheForce : MonoBehaviour
 					if (!towards) {
 						speed = -speed;
 					}
-					MoveAtSpeed (go, speed);
+					MoveWithForce (go, speed);
 				} else {
 					go.GetComponent<Rigidbody> ().useGravity = true;
 					caught.Remove (go);
@@ -214,10 +257,11 @@ public class TheForce : MonoBehaviour
 	{
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
-			if (go.GetComponent<Rigidbody> () != null && go.GetComponent<ManipulatableObject> ().metal) {
+			Rigidbody rb = go.GetComponent<Rigidbody> ();
+			if (rb != null && go.GetComponent<ManipulatableObject> ().metal) {
 				if (Vector3.Distance (transform.position, go.transform.position) < 5.0f) {
-					if (go.GetComponent<Rigidbody> ().useGravity == true) {
-						go.GetComponent<Rigidbody> ().useGravity = false;
+					if (rb.useGravity == true && towards) {
+						rb.useGravity = false;
 					}
 					if (caught.Count == 0 || !caught.Contains (go)) {
 						caught.Add (go);
@@ -225,6 +269,9 @@ public class TheForce : MonoBehaviour
 					float speed = FIELD_STRENGTH / Mathf.Pow (Mathf.Abs (go.transform.position.x - transform.position.x) + Mathf.Abs (go.transform.position.y - transform.position.y), 1.0f);
 					if (!towards) {
 						speed = -speed;
+						if (rb.velocity.y < -10.0f) {
+							rb.velocity = new Vector3 (rb.velocity.x, -10.0f, 0.0f);
+						}
 					}
 					MoveAtSpeed (go, speed);
 
@@ -262,6 +309,23 @@ public class TheForce : MonoBehaviour
 		Vector3 moveTo = transform.position;
 		moveTo.z = 0;
 		go.transform.position = Vector3.MoveTowards (go.transform.position, moveTo, speed * Time.deltaTime);
+		if (moveTo == go.transform.position) {
+			go.GetComponent<Rigidbody> ().velocity = Vector3.zero;
+			go.GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
+		}
+	}
+
+	void MoveWithForce (GameObject go, float speed)
+	{
+		if (speed > TERMINAL_SPEED * FORCE_MULTIPLIER) {
+			speed = TERMINAL_SPEED * FORCE_MULTIPLIER;
+		} else if (speed < -TERMINAL_SPEED * FORCE_MULTIPLIER) {
+			speed = -TERMINAL_SPEED * FORCE_MULTIPLIER;
+		}
+
+		Vector3 moveTo = transform.position;
+		moveTo.z = 0;
+		go.GetComponent<Rigidbody> ().AddForce ((moveTo - go.transform.position) * speed * Time.deltaTime);
 		if (moveTo == go.transform.position) {
 			go.GetComponent<Rigidbody> ().velocity = Vector3.zero;
 			go.GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
