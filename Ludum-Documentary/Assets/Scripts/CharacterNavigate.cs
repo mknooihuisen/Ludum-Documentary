@@ -24,7 +24,7 @@ public class CharacterNavigate : MonoBehaviour
 	public float horizontalJumpPower;
 	public bool onGround { get; private set; }
 
-	public float termiinalVelocity;
+	public float terminalVelocity;
 	private float distToGround;
 	private Vector3 previousVelocity;
 
@@ -88,8 +88,8 @@ public class CharacterNavigate : MonoBehaviour
 		checkGround ();
 
 		//Detect Terminal Velocity
-		if(Mathf.Abs(previousVelocity.x - rb.velocity.x) > termiinalVelocity || Mathf.Abs(previousVelocity.y - rb.velocity.y) > termiinalVelocity)
-			die();
+		if (Mathf.Abs (previousVelocity.x - rb.velocity.x) > terminalVelocity || Mathf.Abs (previousVelocity.y - rb.velocity.y) > terminalVelocity)
+			die ();
 		else {
 			previousVelocity = rb.velocity;
 		}
@@ -116,7 +116,7 @@ public class CharacterNavigate : MonoBehaviour
 			timer += Time.deltaTime;
 		
 		
-		} else if(goingToNav == null){
+		} else if (goingToNav == null) {
 			goingToNav = GetNextNavPoint ();
 		}
 	}
@@ -151,8 +151,6 @@ public class CharacterNavigate : MonoBehaviour
 
 	void OnTriggerEnter (Collider col)
 	{
-		Debug.Log ("I hit: " + col.gameObject.name);
-
 		if (col.gameObject == goingToNav) {
 			lastNav = goingToNav;
 
@@ -189,7 +187,7 @@ public class CharacterNavigate : MonoBehaviour
 		if (onGround || isSimChar) {
 			//anim.SetBool("jumping", true);
 			float up = horizontalJumpPower / 4.0f;
-			Rigidbody rb = GetComponent<Rigidbody>();
+			Rigidbody rb = GetComponent<Rigidbody> ();
 			rb.AddForce (Vector3.forward * 45.0f);
 			rb.AddForce (Vector3.up * up);
 		}
@@ -201,7 +199,7 @@ public class CharacterNavigate : MonoBehaviour
 			//anim.SetBool("jumping", true);
 			float forward = verticalJumpPower / 3.0f;
 
-			Rigidbody rb = GetComponent<Rigidbody>();
+			Rigidbody rb = GetComponent<Rigidbody> ();
 
 
 			rb.AddForce (Vector3.up * verticalJumpPower);
@@ -244,13 +242,12 @@ public class CharacterNavigate : MonoBehaviour
 	public void die ()
 	{
 		dead = true;
-		rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezePositionZ ;
+		rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezePositionZ;
 		levelSettings.isPlayerDead = true;
 
-		if(rb.velocity.x == 0.0f) {
-			rb.AddForce(Vector3.forward * 100.0f);
-			Debug.Log("Dead");
-        }
+		if (rb.velocity.x == 0.0f) {
+			rb.AddForce (Vector3.right * 5.0f);
+		}
 
 	}	
 }

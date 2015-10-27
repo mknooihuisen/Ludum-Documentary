@@ -65,7 +65,8 @@ public class NavPointBehavior : MonoBehaviour
 		*/
 	}
 
-	void Update() {
+	void Update ()
+	{
 
 		if (simulating && simTimer <= 1.0f) {
 			simTimer += Time.deltaTime;
@@ -75,21 +76,22 @@ public class NavPointBehavior : MonoBehaviour
 
 		if (simulating) {
 
-			if(charScript.onGround) {
+			if (charScript.onGround) {
 				jumpSafe = true;
 				simulating = false;
-				Debug.Log("Passed Sim");
+				Debug.Log ("Passed Sim");
 				//Destroy(simChar);
-			} else if(charScript.termiinalVelocity >= Mathf.Abs(transform.position.y - simChar.transform.position.y)) {
+			} else if (charScript.terminalVelocity >= Mathf.Abs (transform.position.y - simChar.transform.position.y)) {
 				jumpSafe = false;
 				simulating = false;
-				Debug.Log("Failed Sim");
-				Destroy(simChar);
+				Debug.Log ("Failed Sim");
+				Destroy (simChar);
 			}
 		}
 	}
 
-	public bool simJump () {
+	public bool simJump ()
+	{
 		return true;
 	}
 
