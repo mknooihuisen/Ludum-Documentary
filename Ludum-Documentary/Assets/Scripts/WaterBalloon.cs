@@ -4,7 +4,7 @@ using System.Collections;
 public class WaterBalloon : MonoBehaviour
 {
 
-	private float fullSpeed = 0.25f;
+	private float fullSpeed = 0.5f;
 	private float speed = 0.01f;
 
 	public Transform steam;
@@ -20,11 +20,11 @@ public class WaterBalloon : MonoBehaviour
 					speed = fullSpeed;
 				}
 			}
-			if (steamObject == null) {
+			if (steamObject == null && speed >= fullSpeed / 2) {
 				Transform trans = Instantiate (steam);
 				steamObject = trans.gameObject;
 				steamObject.transform.parent = this.gameObject.transform;
-				steamObject.transform.localPosition = Vector3.zero + new Vector3 (0, 2.0f, 0);
+				steamObject.transform.localPosition = Vector3.zero + new Vector3 (0, 8.0f, 0);
 			}
 		} else {
 			if (steamObject != null) {
