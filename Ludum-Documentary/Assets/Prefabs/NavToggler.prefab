@@ -12,7 +12,7 @@ GameObject:
   - 65: {fileID: 6526092}
   - 23: {fileID: 2355148}
   - 114: {fileID: 11412084}
-  m_Layer: 30
+  m_Layer: 31
   m_Name: NavToggler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,11 @@ Prefab:
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 0}
-    m_Modifications: []
+    m_Modifications:
+    - target: {fileID: 0}
+      propertyPath: m_Layer
+      value: 31
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 0}
   m_RootGameObject: {fileID: 112382}

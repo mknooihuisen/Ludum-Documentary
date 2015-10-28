@@ -29,7 +29,7 @@ public class CharacterNavigate : MonoBehaviour
 	private Vector3 previousVelocity;
 
 	//Death variables
-	private bool dead;
+	public bool dead;
 	private Vector3 deathPoint;
 	public float crumpleSpeed;
 	private Vector3 finalRestingPlace;
@@ -157,33 +157,33 @@ public class CharacterNavigate : MonoBehaviour
 
 	void OnTriggerEnter (Collider col)
 	{
-		if (col.gameObject == goingToNav) {
-			if (transform.rotation.y == 270.0f) {
-				//transform.Rotate (new Vector3 (0, 180.0f, 0));
-			}
-			lastNav = goingToNav;
-
-			//check nav settings
-			NavPointBehavior myNav = lastNav.GetComponent<NavPointBehavior> ();
-			if (myNav.verticalJump) {
-				if (myNav.CanMakeJump ()) {
-					jumpVertical ();
-				}
-			} else if (myNav.horizontalJump) {
-				if (myNav.CanMakeJump ()) {
-					jumpHorizontal ();
-				}
-
-			} else if (myNav.die) {
-				die ();
-			} else if (myNav.end) {
-				reachedEnd ();
-			}
-
-			lastNav.SetActive (false);
-			goingToNav = GetNextNavPoint ();
-			timer = -0.2f;
+		if (col.gameObject.tag != "NavPoint") {
+			return;
 		}
+
+		lastNav = col.gameObject;	
+
+		//check nav settings
+		NavPointBehavior myNav = lastNav.GetComponent<NavPointBehavior> ();
+		if (myNav.verticalJump) {
+			if (myNav.CanMakeJump ()) {
+				jumpVertical ();
+			}
+		} else if (myNav.horizontalJump) {
+			if (myNav.CanMakeJump ()) {
+				jumpHorizontal ();
+			}
+
+		} else if (myNav.die) {
+			die ();
+		} else if (myNav.end) {
+			reachedEnd ();
+		}
+
+		lastNav.SetActive (false);
+		goingToNav = GetNextNavPoint ();
+		timer = -0.2f;
+
 	}
 
 	void reachedEnd ()
