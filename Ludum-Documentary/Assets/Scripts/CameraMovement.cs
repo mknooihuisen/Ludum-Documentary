@@ -50,6 +50,8 @@ public class CameraMovement : MonoBehaviour
 		if (timer < startDelay) {
 			timer += Time.deltaTime;
 			return;
+		} else {
+			timer += Time.deltaTime;
 		}
 
 		//get where the player is in the viewport
@@ -59,11 +61,11 @@ public class CameraMovement : MonoBehaviour
 			freeze (false);
 			if (pos.x <= 0.0f) {
 				//Debug.Log ("On left");
-				location = new Vector3 (location.x - width + 2.0f, location.y, zDist);
+				location = new Vector3 (location.x - width + 4.0f, location.y, zDist);
 				startMove ();
 			} else if (pos.x >= 1.0f) {
 				//Debug.Log ("On Right");
-				location = new Vector3 (location.x + width, location.y, zDist);
+				location = new Vector3 (location.x + width - 4.0f, location.y, zDist);
 				startMove ();
 			} else if (pos.y >= 1.0f) {
 				//Debug.Log ("On Top");
@@ -73,7 +75,6 @@ public class CameraMovement : MonoBehaviour
 				//Debug.Log ("On Bottom");
 				location = new Vector3 (location.x, location.y - height, zDist);
 				startMove ();
-
 			}
 
 		}
@@ -113,6 +114,7 @@ public class CameraMovement : MonoBehaviour
 		startTime = Time.time;
 		journeyLength = Vector3.Distance (oldLocation, location);
 		freeze (true);
+		timer = startDelay;
 	}
 
 	/**

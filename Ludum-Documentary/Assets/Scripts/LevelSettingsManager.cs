@@ -19,7 +19,6 @@ public class LevelSettingsManager : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		Debug.Log (energy);
 		if (isPlayerDead) {
 			//Debug.Log("Ouch!");
 		} 
