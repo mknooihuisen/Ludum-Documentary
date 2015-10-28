@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class CameraMovement : MonoBehaviour {
+public class CameraMovement : MonoBehaviour
+{
 
 	private GameObject character;
 
@@ -23,10 +25,11 @@ public class CameraMovement : MonoBehaviour {
 
 	private float timer;
 
-	private Vector3 characterVelocity;
+	private List<BodyData> correctRigidbodies;
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+	{
 		//Time.timeScale = 3;
 		character = GameObject.FindGameObjectWithTag ("Player");
 		camera = GetComponent<Camera> ();
@@ -36,10 +39,12 @@ public class CameraMovement : MonoBehaviour {
 		updateCamDistance ();
 
 		timer = 0.0f;
+		correctRigidbodies = new List<BodyData> ();
 	}
 	
 	// Update is called once per frame
-	void FixedUpdate () {
+	void FixedUpdate ()
+	{
 
 		//Don't worry about camera position while player enters.
 		if (timer < startDelay) {
@@ -51,23 +56,23 @@ public class CameraMovement : MonoBehaviour {
 		Vector3 pos = camera.WorldToViewportPoint (character.transform.position);
 
 		if (transform.position == location) {
-			freeze(false);
+			freeze (false);
 			if (pos.x <= 0.0f) {
 				//Debug.Log ("On left");
 				location = new Vector3 (location.x - width, location.y, zDist);
-				startMove();
+				startMove ();
 			} else if (pos.x >= 1.0f) {
 				//Debug.Log ("On Right");
 				location = new Vector3 (location.x + width, location.y, zDist);
-				startMove();
+				startMove ();
 			} else if (pos.y >= 1.0f) {
 				//Debug.Log ("On Top");
 				location = new Vector3 (location.x, location.y + height, zDist);
-				startMove();
+				startMove ();
 			} else if (pos.y <= 0.0f) {
 				//Debug.Log ("On Bottom");
 				location = new Vector3 (location.x, location.y - height, zDist);
-				startMove();
+				startMove ();
 
 			}
 
@@ -77,23 +82,33 @@ public class CameraMovement : MonoBehaviour {
 		else {
 			float distCovered = (Time.time - startTime) * moveSpeed;
 			float fracJourney = distCovered / journeyLength;
-			transform.position = Vector3.Lerp(oldLocation, location, fracJourney);
+			transform.position = Vector3.Lerp (oldLocation, location, fracJourney);
 		}
 	
 	}
 
-	void freeze(bool freeze) {
-		Rigidbody rb = character.GetComponent<Rigidbody>();
+	void freeze (bool freeze)
+	{
 		if (freeze) {
-			characterVelocity = rb.velocity;
-			rb.isKinematic = true;
-		} else if(rb.isKinematic == true){
-			rb.isKinematic = false;
-			rb.velocity = characterVelocity;
+			correctRigidbodies.RemoveRange (0, correctRigidbodies.Count);
+			Rigidbody[] rigidbodies = FindObjectsOfType<Rigidbody> ();
+			foreach (Rigidbody rb in rigidbodies) {
+				if (!rb.isKinematic) {
+					correctRigidbodies.Add (new BodyData (rb.velocity, false, rb));
+					rb.isKinematic = true;
+				}
+			}
+		} else if (correctRigidbodies.Count > 0 && correctRigidbodies [0].rb.isKinematic == true) {
+			foreach (BodyData bd in correctRigidbodies) {
+				Rigidbody rb = bd.go.GetComponent<Rigidbody> ();
+				rb.isKinematic = false;
+				rb.velocity = bd.velocity;
+			}
 		}
 	}
 
-	void startMove() {
+	void startMove ()
+	{
 		oldLocation = transform.position;
 		startTime = Time.time;
 		journeyLength = Vector3.Distance (oldLocation, location);
@@ -103,17 +118,34 @@ public class CameraMovement : MonoBehaviour {
 	/**
 	 * Call whenever the distance between camera and 0 changes
 	 */
-	public void updateCamDistance() {
+	public void updateCamDistance ()
+	{
 		zDist = transform.position.z;
 
 		//get the points in world coords at the edges of the camera.
-		Vector3 bottomLeft = camera.ViewportToWorldPoint ( new Vector3(0.0f, 0.0f, zDist));
-		Vector3 topRight = camera.ViewportToWorldPoint ( new Vector3(1.0f, 1.0f, zDist));
+		Vector3 bottomLeft = camera.ViewportToWorldPoint (new Vector3 (0.0f, 0.0f, zDist));
+		Vector3 topRight = camera.ViewportToWorldPoint (new Vector3 (1.0f, 1.0f, zDist));
 
 
-		width = Mathf.Abs(topRight.x - bottomLeft.x);
-		height = Mathf.Abs(topRight.y - bottomLeft.y);
+		width = Mathf.Abs (topRight.x - bottomLeft.x);
+		height = Mathf.Abs (topRight.y - bottomLeft.y);
 
 
+	}
+
+	private class BodyData
+	{
+		public Vector3 velocity;
+		public bool kinematic;
+		public Rigidbody rb;
+		public GameObject go;
+
+		public BodyData (Vector3 velocity, bool kinematic, Rigidbody rb)
+		{
+			this.velocity = velocity;
+			this.kinematic = kinematic;
+			this.rb = rb;
+			go = rb.gameObject;
+		}
 	}
 }

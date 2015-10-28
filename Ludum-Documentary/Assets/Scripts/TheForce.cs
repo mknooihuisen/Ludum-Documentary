@@ -32,6 +32,8 @@ public class TheForce : MonoBehaviour
 
 	private LevelSettingsManager levelSettings;
 
+	private float energyDrain;
+
 	void Start ()
 	{
 		GameObject [] temp = GameObject.FindGameObjectsWithTag ("GameController");
@@ -41,6 +43,7 @@ public class TheForce : MonoBehaviour
 			}
 		}
 		caught = new List<GameObject> ();
+		energyDrain = 0.0f;
 	}
 
 	GameObject PlaceForce ()
@@ -90,6 +93,7 @@ public class TheForce : MonoBehaviour
 
 	void FixedUpdate ()
 	{
+		bool spendEnergy = true;
 		if (levelSettings.isPlayerDead) {
 			if (this.transform.position != new Vector3 (0, -100.0f, -100.0f)) {
 				this.transform.position = new Vector3 (0, -100.0f, -100.0f);
@@ -144,9 +148,15 @@ public class TheForce : MonoBehaviour
 					Select (manipulated, false);
 				}
 				if (cInput.GetKeyDown ("Up")) {
-					manipulated.GetComponent<ManipulatableObject> ().powered = true;
+					if (manipulated.GetComponent<ManipulatableObject> ().powered == false) {
+						levelSettings.energy -= 10.0f;
+						manipulated.GetComponent<ManipulatableObject> ().powered = true;
+					}
 				} else if (cInput.GetKeyDown ("Down")) {
-					manipulated.GetComponent<ManipulatableObject> ().powered = false;
+					if (manipulated.GetComponent<ManipulatableObject> ().powered == true) {
+						levelSettings.energy -= 10.0f;
+						manipulated.GetComponent<ManipulatableObject> ().powered = false;
+					}
 				}
 			} else if (hitObject == null) {
 				if (manipulated != null) {
@@ -166,10 +176,12 @@ public class TheForce : MonoBehaviour
 					Select (manipulated, false);
 				}
 				if (cInput.GetKeyDown ("Up")) {
+					levelSettings.energy -= 30.0f;
 					manipulated.GetComponent<ManipulatableObject> ().isRadioactive = true;
 					Select (manipulated, true);
 					manipulated = null;
 				} else if (cInput.GetKeyDown ("Down")) {
+					levelSettings.energy -= 30.0f;
 					manipulated.GetComponent<ManipulatableObject> ().isRadioactive = false;
 					Select (manipulated, true);
 					manipulated = null;
@@ -192,9 +204,11 @@ public class TheForce : MonoBehaviour
 					Select (manipulated, false);
 				}
 				if (cInput.GetKeyDown ("Down")) {
+					levelSettings.energy -= 100.0f;
 					hitObject.SetActive (false);
 				}
 			} else if (cInput.GetKeyDown ("Up")) {
+				levelSettings.energy -= 100.0f;
 				GenerateObject ();
 			} else {
 				if (manipulated != null) {
@@ -203,6 +217,12 @@ public class TheForce : MonoBehaviour
 				}
 			}
 		} else {
+			spendEnergy = false;
+			if (energyDrain > 0) {
+				energyDrain = energyDrain -= 5.0f;
+			} else if (energyDrain < 0) {
+				energyDrain = 0;
+			}
 			if (this.transform.position != new Vector3 (0, -100.0f, -100.0f)) {
 				this.transform.position = new Vector3 (0, -100.0f, -100.0f);
 			}
@@ -212,6 +232,9 @@ public class TheForce : MonoBehaviour
 				manipulated = null;
 			}
 			RemoveCaughtObjects ();
+		}
+		if (spendEnergy && (cInput.GetKey ("Up") || cInput.GetKey ("Down")) && force != NO_FORCE) {
+			levelSettings.energy -= energyDrain;
 		}
 	}
 
@@ -232,11 +255,17 @@ public class TheForce : MonoBehaviour
 
 	void Gravitate (bool towards)
 	{
+		energyDrain += (1.5f * Time.deltaTime);
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
 			if (go.GetComponent<Rigidbody> () != null && go.GetComponent<ManipulatableObject> ().hasMass) {
 				if (Vector3.Distance (transform.position, go.transform.position) < 5.0f) {
 					go.GetComponent<Rigidbody> ().useGravity = false;
+					if (go.GetComponent<ManipulatableObject> ().crushable) {
+						if (Mathf.Abs (go.transform.position.x - transform.position.x) < 1.0f && Mathf.Abs (go.transform.position.y - transform.position.y) < 1.0f) {
+							go.GetComponent<ManipulatableObject> ().crush ();
+						}
+					}
 					if (caught.Count == 0 || !caught.Contains (go)) {
 						caught.Add (go);
 					}
@@ -255,6 +284,7 @@ public class TheForce : MonoBehaviour
 
 	void GravityShift (bool increase)
 	{
+		energyDrain += (0.5f * Time.deltaTime);
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
 			if (go.GetComponent<Rigidbody> () != null && go.GetComponent<ManipulatableObject> ().hasMass) {
@@ -279,6 +309,7 @@ public class TheForce : MonoBehaviour
 
 	void Magnetize (bool towards)
 	{
+		energyDrain += (2.5f * Time.deltaTime);
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
 			Rigidbody rb = go.GetComponent<Rigidbody> ();

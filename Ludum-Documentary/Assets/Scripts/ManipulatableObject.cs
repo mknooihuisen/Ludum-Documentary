@@ -58,4 +58,14 @@ public class ManipulatableObject : MonoBehaviour
 			Destroy (radioactiveObject);
 		}
 	}
+
+	public void crush ()
+	{
+		if (!crushed) {
+			gameObject.transform.localScale = gameObject.transform.localScale / 2;
+			crushed = true;
+		}
+		gameObject.GetComponent<Rigidbody> ().isKinematic = false;
+		gameObject.GetComponent<Rigidbody> ().useGravity = true;
+	}
 }
