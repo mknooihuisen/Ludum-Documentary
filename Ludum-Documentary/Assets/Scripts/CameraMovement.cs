@@ -59,7 +59,7 @@ public class CameraMovement : MonoBehaviour
 			freeze (false);
 			if (pos.x <= 0.0f) {
 				//Debug.Log ("On left");
-				location = new Vector3 (location.x - width, location.y, zDist);
+				location = new Vector3 (location.x - width + 2.0f, location.y, zDist);
 				startMove ();
 			} else if (pos.x >= 1.0f) {
 				//Debug.Log ("On Right");
@@ -125,7 +125,6 @@ public class CameraMovement : MonoBehaviour
 		//get the points in world coords at the edges of the camera.
 		Vector3 bottomLeft = camera.ViewportToWorldPoint (new Vector3 (0.0f, 0.0f, zDist));
 		Vector3 topRight = camera.ViewportToWorldPoint (new Vector3 (1.0f, 1.0f, zDist));
-
 
 		width = Mathf.Abs (topRight.x - bottomLeft.x);
 		height = Mathf.Abs (topRight.y - bottomLeft.y);

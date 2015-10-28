@@ -43,9 +43,12 @@ public class CharacterNavigate : MonoBehaviour
 
 	private LevelSettingsManager levelSettings;
 
+	private bool facingLeft;
+
 	// Use this for initialization
 	void Start ()
 	{
+		facingLeft = false;
 		//Dynamically grab level settings
 		GameObject [] temp = GameObject.FindGameObjectsWithTag ("GameController");
 		foreach (GameObject go in temp) {
@@ -98,16 +101,19 @@ public class CharacterNavigate : MonoBehaviour
 		//make sure we have a point to go to and we're on the ground
 		if (goingToNav != null && onGround) {
 
-
 			//rotate if necessary
-			if (directionToNav == Vector3.left) {
+//			if (transform.rotation.y == 270.0f && directionToNav == Vector3.right) {
+//				transform.Rotate (0, 180.0f, 0);
+//			} else
+			if (directionToNav == Vector3.left && !facingLeft) {
 				transform.Rotate (0, 180.0f, 0);
+				facingLeft = true;
 				directionToNav = Vector3.right;
+			} else if (directionToNav == Vector3.right && facingLeft) {
+				transform.Rotate (0, 180.0f, 0);
+				facingLeft = false;
+				directionToNav = Vector3.left;
 			}
-
-
-
-
 
 			if (timer >= walkSpeed && !dead) {
 				rb.AddForce (transform.forward * speed);
@@ -152,6 +158,9 @@ public class CharacterNavigate : MonoBehaviour
 	void OnTriggerEnter (Collider col)
 	{
 		if (col.gameObject == goingToNav) {
+			if (transform.rotation.y == 270.0f) {
+				//transform.Rotate (new Vector3 (0, 180.0f, 0));
+			}
 			lastNav = goingToNav;
 
 			//check nav settings
@@ -190,8 +199,8 @@ public class CharacterNavigate : MonoBehaviour
 
 			Rigidbody rb = GetComponent<Rigidbody> ();
 
-			NavPointBehavior nav = goingToNav.GetComponent<NavPointBehavior>();
-			rb.AddForce (Vector3.right * horizontalJumpPower * Mathf.Abs(nav.jumpPower));
+			NavPointBehavior nav = goingToNav.GetComponent<NavPointBehavior> ();
+			rb.AddForce (Vector3.right * horizontalJumpPower * Mathf.Abs (nav.jumpPower));
 			rb.AddForce (Vector3.up * up);
 		}
 	}
@@ -204,8 +213,8 @@ public class CharacterNavigate : MonoBehaviour
 
 			Rigidbody rb = GetComponent<Rigidbody> ();
 
-			NavPointBehavior nav = goingToNav.GetComponent<NavPointBehavior>();
-			rb.AddForce (Vector3.up * verticalJumpPower * Mathf.Abs(nav.jumpPower));
+			NavPointBehavior nav = goingToNav.GetComponent<NavPointBehavior> ();
+			rb.AddForce (Vector3.up * verticalJumpPower * Mathf.Abs (nav.jumpPower));
 			rb.AddForce (Vector3.forward * forward);
 		}
 	}
