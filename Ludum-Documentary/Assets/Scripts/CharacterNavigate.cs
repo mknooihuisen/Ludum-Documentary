@@ -45,9 +45,12 @@ public class CharacterNavigate : MonoBehaviour
 
 	private bool facingLeft;
 
+	private bool endReached;
+
 	// Use this for initialization
 	void Start ()
 	{
+		endReached = false;
 		facingLeft = false;
 		//Dynamically grab level settings
 		GameObject [] temp = GameObject.FindGameObjectsWithTag ("GameController");
@@ -88,6 +91,10 @@ public class CharacterNavigate : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
+		if (endReached) {
+			return;
+		}
+
 		checkGround ();
 
 		//Detect Terminal Velocity
@@ -188,6 +195,7 @@ public class CharacterNavigate : MonoBehaviour
 
 	void reachedEnd ()
 	{
+		endReached = true;
 		Debug.Log ("You Win!");
 	}
 

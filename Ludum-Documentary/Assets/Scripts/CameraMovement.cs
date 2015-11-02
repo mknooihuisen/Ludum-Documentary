@@ -4,27 +4,37 @@ using System.Collections.Generic;
 
 public class CameraMovement : MonoBehaviour
 {
-
+	/** The character in the game */
 	private GameObject character;
 
+	/** The width and height of the screen the camera can see */
 	private float width, height;
 
+	/** The camera object */
 	private Camera camera;
 
+	/** The speed at which the camera moves */
 	public float moveSpeed;
 
+	/** The current location of the camera */
 	private Vector3 location;
 
+	/** How far away the camera should be in the "z" direction */
 	private float zDist;
 
+	/** When the camera moves, how long the move will take and when it should start */
 	private float journeyLength, startTime;
 
+	/** The previous location of the camera */
 	private Vector3 oldLocation;
 
+	/** How long to wait before the camera starts moving at the start of the level */
 	public float startDelay;
 
+	/** Timer for checking when to start moving the camera */
 	private float timer;
 
+	/** The data for all rigid bodies in the game - used for pausing motion */
 	private List<BodyData> correctRigidbodies;
 
 	// Use this for initialization
@@ -88,6 +98,7 @@ public class CameraMovement : MonoBehaviour
 	
 	}
 
+	/** Freezes all rigidbodies while the camera moves */
 	void freeze (bool freeze)
 	{
 		if (freeze) {
@@ -108,6 +119,7 @@ public class CameraMovement : MonoBehaviour
 		}
 	}
 
+	/** Prepares the camera and objects for moving */
 	void startMove ()
 	{
 		oldLocation = transform.position;
@@ -134,6 +146,9 @@ public class CameraMovement : MonoBehaviour
 
 	}
 
+	/**
+	 * Stores relavent data for pausing and unpausing rigidbodies
+	 */
 	private class BodyData
 	{
 		public Vector3 velocity;

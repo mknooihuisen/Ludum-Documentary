@@ -80,6 +80,9 @@ public class TheForce : MonoBehaviour
 		return hitObject;
 	}
 
+	/**
+	 * Uses a force on the selected object
+	 */
 	GameObject ForceOnObject ()
 	{
 		Ray ray = Camera.main.ScreenPointToRay (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, 0));
@@ -94,7 +97,7 @@ public class TheForce : MonoBehaviour
 	void FixedUpdate ()
 	{
 		bool spendEnergy = true;
-		if (levelSettings.isPlayerDead) {
+		if (levelSettings.isPlayerDead || levelSettings.energy <= 0.0f) {
 			if (this.transform.position != new Vector3 (0, -100.0f, -100.0f)) {
 				this.transform.position = new Vector3 (0, -100.0f, -100.0f);
 			}
@@ -108,7 +111,7 @@ public class TheForce : MonoBehaviour
 		}
 		if (cInput.GetKey ("GravityWell") && (force == GRAVITY_WELL || force == NO_FORCE)) {
 			force = GRAVITY_WELL;
-			GameObject hitObject = PlaceForce ();
+			PlaceForce ();
 			if (cInput.GetKey ("Up")) {
 				Gravitate (true);
 			} else if (cInput.GetKey ("Down")) {
@@ -118,7 +121,7 @@ public class TheForce : MonoBehaviour
 			}
 		} else if (cInput.GetKey ("Magnetic") && (force == MAGNETIC || force == NO_FORCE)) {
 			force = MAGNETIC;
-			GameObject hitObject = PlaceForce ();
+			PlaceForce ();
 			if (cInput.GetKey ("Up")) {
 				Magnetize (true);
 			} else if (cInput.GetKey ("Down")) {
@@ -128,7 +131,7 @@ public class TheForce : MonoBehaviour
 			}
 		} else if (cInput.GetKey ("GravityShift") && (force == GRAVITY_SHIFT || force == NO_FORCE)) {
 			force = GRAVITY_SHIFT;
-			GameObject hitObject = PlaceForce ();
+			PlaceForce ();
 			if (cInput.GetKey ("Up")) {
 				GravityShift (true);
 			} else if (cInput.GetKey ("Down")) {
@@ -136,9 +139,11 @@ public class TheForce : MonoBehaviour
 			} else {
 				RemoveCaughtObjects ();
 			}
+
+			// These forces are applied to individual objects
 		} else if (cInput.GetKey ("Electric") && (force == ELECTRIC || force == NO_FORCE)) {
 			GameObject hitObject = ForceOnObject ();
-			if (hitObject != null) {
+			if (hitObject != null && hitObject.GetComponent<ManipulatableObject> ().powerable) {
 				if (manipulated == null) {
 					manipulated = hitObject;
 					Select (manipulated, false);
@@ -166,7 +171,7 @@ public class TheForce : MonoBehaviour
 			}
 		} else if (cInput.GetKey ("Weak") && (force == WEAK || force == NO_FORCE)) {
 			GameObject hitObject = ForceOnObject ();
-			if (hitObject != null) {
+			if (hitObject != null && hitObject.GetComponent<ManipulatableObject> ().canBeRadioactive) {
 				if (manipulated == null) {
 					manipulated = hitObject;
 					Select (manipulated, false);
@@ -176,15 +181,13 @@ public class TheForce : MonoBehaviour
 					Select (manipulated, false);
 				}
 				if (cInput.GetKeyDown ("Up")) {
-					levelSettings.energy -= 30.0f;
+					levelSettings.energy = levelSettings.energy - (30.0f + energyDrain);
+					spendEnergy = false;
 					manipulated.GetComponent<ManipulatableObject> ().isRadioactive = true;
-					Select (manipulated, true);
-					manipulated = null;
 				} else if (cInput.GetKeyDown ("Down")) {
-					levelSettings.energy -= 30.0f;
+					levelSettings.energy = levelSettings.energy - (30.0f + energyDrain);
+					spendEnergy = false;
 					manipulated.GetComponent<ManipulatableObject> ().isRadioactive = false;
-					Select (manipulated, true);
-					manipulated = null;
 				}
 			} else {
 				if (manipulated != null) {
@@ -204,11 +207,13 @@ public class TheForce : MonoBehaviour
 					Select (manipulated, false);
 				}
 				if (cInput.GetKeyDown ("Down")) {
-					levelSettings.energy -= 100.0f;
+					levelSettings.energy = levelSettings.energy - (100.0f + energyDrain);
+					spendEnergy = false;
 					hitObject.SetActive (false);
 				}
 			} else if (cInput.GetKeyDown ("Up")) {
-				levelSettings.energy -= 100.0f;
+				levelSettings.energy = levelSettings.energy - (100.0f + energyDrain);
+				spendEnergy = false;
 				GenerateObject ();
 			} else {
 				if (manipulated != null) {
@@ -217,27 +222,40 @@ public class TheForce : MonoBehaviour
 				}
 			}
 		} else {
+			// If we aren't using a force, we aren't spending energy
 			spendEnergy = false;
+			force = NO_FORCE;
+
 			if (energyDrain > 0) {
-				energyDrain = energyDrain -= 5.0f;
-			} else if (energyDrain < 0) {
+				energyDrain = energyDrain - 5.0f;
+			}
+			// Make sure the energy drain doesn't drop below zero
+			if (energyDrain < 0) {
 				energyDrain = 0;
 			}
+
+			// Put the force indicator back off screen
 			if (this.transform.position != new Vector3 (0, -100.0f, -100.0f)) {
 				this.transform.position = new Vector3 (0, -100.0f, -100.0f);
 			}
-			force = NO_FORCE;
+
+			// Unselect all objects
 			if (manipulated != null) {
 				Select (manipulated, true);
 				manipulated = null;
 			}
 			RemoveCaughtObjects ();
 		}
+
+		// Spend energy if we are using it
 		if (spendEnergy && (cInput.GetKey ("Up") || cInput.GetKey ("Down")) && force != NO_FORCE) {
 			levelSettings.energy -= energyDrain;
 		}
 	}
 
+	/**
+	 * Highlights objects that are hovered over
+	 */
 	void Select (GameObject select, bool deselect)
 	{
 		if (deselect) {
@@ -253,6 +271,9 @@ public class TheForce : MonoBehaviour
 		}
 	}
 
+	/**
+	 * The gravity well force
+	 */
 	void Gravitate (bool towards)
 	{
 		energyDrain += (1.5f * Time.deltaTime);
@@ -282,6 +303,9 @@ public class TheForce : MonoBehaviour
 		}
 	}
 
+	/**
+	 * The gravity shift (double or off) force
+	 */
 	void GravityShift (bool increase)
 	{
 		energyDrain += (0.5f * Time.deltaTime);
@@ -307,6 +331,9 @@ public class TheForce : MonoBehaviour
 		}
 	}
 
+	/**
+	 * The magnetization force
+	 */
 	void Magnetize (bool towards)
 	{
 		energyDrain += (2.5f * Time.deltaTime);
@@ -339,6 +366,9 @@ public class TheForce : MonoBehaviour
 
 	}
 
+	/**
+	 * Creates an array of manipulatable objects
+	 */
 	GameObject[] FindManipulatableObjects ()
 	{
 		GameObject[] objs = FindObjectsOfType<GameObject> ();
@@ -353,6 +383,9 @@ public class TheForce : MonoBehaviour
 		return maniplatable.ToArray ();
 	}
 
+	/**
+	 * Moves an object with translation, rather than using forces
+	 */
 	void MoveAtSpeed (GameObject go, float speed)
 	{
 		if (speed > TERMINAL_SPEED) {
@@ -370,6 +403,9 @@ public class TheForce : MonoBehaviour
 		}
 	}
 
+	/**
+	 * Moves an object using forces, rather than translation
+	 */
 	void MoveWithForce (GameObject go, float speed)
 	{
 		if (speed > TERMINAL_SPEED * FORCE_MULTIPLIER) {
@@ -387,6 +423,9 @@ public class TheForce : MonoBehaviour
 		}
 	}
 
+	/**
+	 * Removes all objects caught by a force when the force ends or the player dies
+	 */
 	void RemoveCaughtObjects ()
 	{
 		if (caught.Count > 0) {

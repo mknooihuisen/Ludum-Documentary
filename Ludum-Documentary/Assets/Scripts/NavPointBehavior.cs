@@ -3,34 +3,48 @@ using System.Collections;
 
 public class NavPointBehavior : MonoBehaviour
 {
-
+	/** Whether the NavPoint prompts a vertical jump */
 	public bool verticalJump;
 
+	/** Whether the NavPoint prompts a horizontal jump */
 	public bool horizontalJump;
 
+	/** The location the character should be jumping to */
 	public GameObject jumpLocation;
 
+	/** Whether this NavPoint kills the player */
 	public bool die;
 
+	/** Whether this NavPoint ends the level */
 	public bool end;
 
+	/** Whether the NavPoint forces the character to jump, whether they'd make it or not */
 	public bool forceProceed;
 
+	/** Whether or not the jump in question is safe for the character */
 	private bool jumpSafe;
 
-	private GameObject character;
-	private GameObject	 simChar;
-
+	/** The ideal distance above the ground NavPoints should be */
 	private float distToGround = 1.0f;
+
+	/** Above this height, NavPoints do not snap to the ground */
 	private float aboveGroundDist = 3.0f;
 
+	/** The prefab for the similuated player */
 	public Transform simPrefab;
 
+	/** Whether the NavPoint simulates the jump */
 	public bool simulating;
-	private CharacterNavigate charScript;
+
+	/** Timer for the simulation */
 	private float simTimer;
 
+	/** How much power the character should put into their jump */
 	public float jumpPower = 1.0f;
+
+	private GameObject simChar;
+
+	private CharacterNavigate charScript;
 
 	void Start ()
 	{
@@ -38,8 +52,6 @@ public class NavPointBehavior : MonoBehaviour
 		if (jumpPower == 0.0f) {
 			jumpPower = 1.0f;
 		}
-
-		character = GameObject.FindGameObjectWithTag ("Player");
 
 		RaycastHit hit;
 		if (Physics.Raycast (transform.position, Vector3.down, out hit, aboveGroundDist)) {
