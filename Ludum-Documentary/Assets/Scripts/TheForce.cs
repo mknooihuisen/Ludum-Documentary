@@ -7,11 +7,13 @@ public class TheForce : MonoBehaviour
 	private static int BACKGROUND = 15;
 	private static int MANIPULATABLE = 14;
 
-	private static float WELL_STRENGTH = 3000.0f;
+	/** Strength of the movement forces */
+	private static float WELL_STRENGTH = 4000.0f;
 	private static float FIELD_STRENGTH = 35.0f;
 	private static float TERMINAL_SPEED = 50.0f;
 	private static float FORCE_MULTIPLIER = 300.0f;
 
+	/** Static values assigned to the various forces */
 	private static int NO_FORCE = 0;
 	private static int GRAVITY_WELL = 1;
 	private static int GRAVITY_SHIFT = 2;
@@ -20,9 +22,23 @@ public class TheForce : MonoBehaviour
 	private static int WEAK = 5;
 	private static int STRONG = 6;
 
+	/** The constants for how much energy is drained each second while using the force */
+	private static float GRAVITY_WELL_DRAIN = 1.5f;
+	private static float GRAVITY_SHIFT_DRAIN = 0.5f;
+	private static float MAGNETIC_DRAIN = 2.5f;
+
+	/** The constants for how much energy is drained from using the force */
+	private static float ELECTRIC_DRAIN = 15.0f;
+	private static float WEAK_DRAIN = 30.0f;
+	private static float STRONG_DRAIN = 250.0f;
+
+	/** How quickly the energy drain goes back to zero */
+	private static float DRAIN_REDUCTION = 5.0f;
+
+	/** At the start, no force is being used */
 	private int force = NO_FORCE;
 
-	public bool characterDead;
+	public bool characterDead = false;
 
 	private List<GameObject> caught;
 
@@ -97,7 +113,7 @@ public class TheForce : MonoBehaviour
 	void FixedUpdate ()
 	{
 		bool spendEnergy = true;
-		if (levelSettings.isPlayerDead || levelSettings.energy <= 0.0f) {
+		if (levelSettings.isPlayerDead || levelSettings.energy <= 0.0f || characterDead) {
 			if (this.transform.position != new Vector3 (0, -100.0f, -100.0f)) {
 				this.transform.position = new Vector3 (0, -100.0f, -100.0f);
 			}
@@ -154,12 +170,12 @@ public class TheForce : MonoBehaviour
 				}
 				if (cInput.GetKeyDown ("Up")) {
 					if (manipulated.GetComponent<ManipulatableObject> ().powered == false) {
-						levelSettings.energy -= 10.0f;
+						levelSettings.energy = levelSettings.energy - (ELECTRIC_DRAIN + energyDrain);
 						manipulated.GetComponent<ManipulatableObject> ().powered = true;
 					}
 				} else if (cInput.GetKeyDown ("Down")) {
 					if (manipulated.GetComponent<ManipulatableObject> ().powered == true) {
-						levelSettings.energy -= 10.0f;
+						levelSettings.energy = levelSettings.energy - (ELECTRIC_DRAIN + energyDrain);
 						manipulated.GetComponent<ManipulatableObject> ().powered = false;
 					}
 				}
@@ -181,11 +197,11 @@ public class TheForce : MonoBehaviour
 					Select (manipulated, false);
 				}
 				if (cInput.GetKeyDown ("Up")) {
-					levelSettings.energy = levelSettings.energy - (30.0f + energyDrain);
+					levelSettings.energy = levelSettings.energy - (WEAK_DRAIN + energyDrain);
 					spendEnergy = false;
 					manipulated.GetComponent<ManipulatableObject> ().isRadioactive = true;
 				} else if (cInput.GetKeyDown ("Down")) {
-					levelSettings.energy = levelSettings.energy - (30.0f + energyDrain);
+					levelSettings.energy = levelSettings.energy - (WEAK_DRAIN + energyDrain);
 					spendEnergy = false;
 					manipulated.GetComponent<ManipulatableObject> ().isRadioactive = false;
 				}
@@ -207,12 +223,12 @@ public class TheForce : MonoBehaviour
 					Select (manipulated, false);
 				}
 				if (cInput.GetKeyDown ("Down")) {
-					levelSettings.energy = levelSettings.energy - (100.0f + energyDrain);
+					levelSettings.energy = levelSettings.energy - (STRONG_DRAIN + energyDrain);
 					spendEnergy = false;
 					hitObject.SetActive (false);
 				}
 			} else if (cInput.GetKeyDown ("Up")) {
-				levelSettings.energy = levelSettings.energy - (100.0f + energyDrain);
+				levelSettings.energy = levelSettings.energy - (STRONG_DRAIN + energyDrain);
 				spendEnergy = false;
 				GenerateObject ();
 			} else {
@@ -227,11 +243,11 @@ public class TheForce : MonoBehaviour
 			force = NO_FORCE;
 
 			if (energyDrain > 0) {
-				energyDrain = energyDrain - 5.0f;
+				energyDrain = energyDrain - DRAIN_REDUCTION * Time.deltaTime;
 			}
 			// Make sure the energy drain doesn't drop below zero
 			if (energyDrain < 0) {
-				energyDrain = 0;
+				energyDrain = 0.0f;
 			}
 
 			// Put the force indicator back off screen
@@ -250,6 +266,7 @@ public class TheForce : MonoBehaviour
 		// Spend energy if we are using it
 		if (spendEnergy && (cInput.GetKey ("Up") || cInput.GetKey ("Down")) && force != NO_FORCE) {
 			levelSettings.energy -= energyDrain;
+			Debug.Log (levelSettings.energy + " " + energyDrain);
 		}
 	}
 
@@ -276,12 +293,13 @@ public class TheForce : MonoBehaviour
 	 */
 	void Gravitate (bool towards)
 	{
-		energyDrain += (1.5f * Time.deltaTime);
+		energyDrain += (GRAVITY_WELL_DRAIN * Time.deltaTime);
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
 			if (go.GetComponent<Rigidbody> () != null && go.GetComponent<ManipulatableObject> ().hasMass) {
+				Rigidbody rb = go.GetComponent<Rigidbody> ();
 				if (Vector3.Distance (transform.position, go.transform.position) < 5.0f) {
-					go.GetComponent<Rigidbody> ().useGravity = false;
+					rb.useGravity = false;
 					if (go.GetComponent<ManipulatableObject> ().crushable) {
 						if (Mathf.Abs (go.transform.position.x - transform.position.x) < 1.0f && Mathf.Abs (go.transform.position.y - transform.position.y) < 1.0f) {
 							go.GetComponent<ManipulatableObject> ().crush ();
@@ -291,6 +309,17 @@ public class TheForce : MonoBehaviour
 						caught.Add (go);
 					}
 					float speed = WELL_STRENGTH / Mathf.Pow (Mathf.Abs (go.transform.position.x - transform.position.x) + Mathf.Abs (go.transform.position.y - transform.position.y), 2.0f);
+
+					
+					if (speed > TERMINAL_SPEED * FORCE_MULTIPLIER) {
+						speed = TERMINAL_SPEED * FORCE_MULTIPLIER;
+					} else if (speed < -TERMINAL_SPEED * FORCE_MULTIPLIER) {
+						speed = -TERMINAL_SPEED * FORCE_MULTIPLIER;
+					}
+					
+					// Make sure the force is proportional to the mass - gravity affects all objects equally, regardless of mass
+					speed = speed * rb.mass;
+
 					if (!towards) {
 						speed = -speed;
 					}
@@ -308,7 +337,7 @@ public class TheForce : MonoBehaviour
 	 */
 	void GravityShift (bool increase)
 	{
-		energyDrain += (0.5f * Time.deltaTime);
+		energyDrain += (GRAVITY_SHIFT_DRAIN * Time.deltaTime);
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
 			if (go.GetComponent<Rigidbody> () != null && go.GetComponent<ManipulatableObject> ().hasMass) {
@@ -316,12 +345,14 @@ public class TheForce : MonoBehaviour
 					if (caught.Count == 0 || !caught.Contains (go)) {
 						caught.Add (go);
 					}
+					Rigidbody rb = go.GetComponent<Rigidbody> ();
 					if (increase) {
-						go.GetComponent<Rigidbody> ().AddForce (new Vector3 (0.0f, -19.6f, 0.0f) * Time.deltaTime * 100);
+						rb.AddForce (new Vector3 (0.0f, -19.6f * rb.mass, 0.0f) * Time.deltaTime * 100);
 					} else if (go.GetComponent<Rigidbody> ().useGravity == true) {
-						go.GetComponent<Rigidbody> ().AddForce (new Vector3 (0.0f, 0.98f, 0.0f) * Time.deltaTime * 100);
-						go.GetComponent<Rigidbody> ().AddTorque (new Vector3 (Random.Range (0.0f, 0.98f), Random.Range (0.0f, 0.98f), Random.Range (0.0f, 0.98f)) * Time.deltaTime * 100);
-						go.GetComponent<Rigidbody> ().useGravity = false;
+						rb.AddForce (new Vector3 (0.0f, 0.98f * go.GetComponent<Rigidbody> ().mass, 0.0f) * Time.deltaTime * 100);
+						rb.AddTorque (new Vector3 (Random.Range (0.0f, 0.98f) * rb.mass, 
+							Random.Range (0.0f, 0.98f) * rb.mass, Random.Range (0.0f, 0.98f) * rb.mass) * Time.deltaTime * 100);
+						rb.useGravity = false;
 					}
 				} else {
 					go.GetComponent<Rigidbody> ().useGravity = true;
@@ -336,7 +367,7 @@ public class TheForce : MonoBehaviour
 	 */
 	void Magnetize (bool towards)
 	{
-		energyDrain += (2.5f * Time.deltaTime);
+		energyDrain += (MAGNETIC_DRAIN * Time.deltaTime);
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
 			Rigidbody rb = go.GetComponent<Rigidbody> ();
@@ -349,6 +380,13 @@ public class TheForce : MonoBehaviour
 						caught.Add (go);
 					}
 					float speed = FIELD_STRENGTH / Mathf.Pow (Mathf.Abs (go.transform.position.x - transform.position.x) + Mathf.Abs (go.transform.position.y - transform.position.y), 1.0f);
+
+					if (speed > TERMINAL_SPEED) {
+						speed = TERMINAL_SPEED;
+					} else if (speed < -TERMINAL_SPEED) {
+						speed = -TERMINAL_SPEED;
+					}
+
 					if (!towards) {
 						speed = -speed;
 						if (rb.velocity.y < -10.0f) {
@@ -388,12 +426,6 @@ public class TheForce : MonoBehaviour
 	 */
 	void MoveAtSpeed (GameObject go, float speed)
 	{
-		if (speed > TERMINAL_SPEED) {
-			speed = TERMINAL_SPEED;
-		} else if (speed < -TERMINAL_SPEED) {
-			speed = -TERMINAL_SPEED;
-		}
-
 		Vector3 moveTo = transform.position;
 		moveTo.z = 0;
 		go.transform.position = Vector3.MoveTowards (go.transform.position, moveTo, speed * Time.deltaTime);
@@ -408,12 +440,6 @@ public class TheForce : MonoBehaviour
 	 */
 	void MoveWithForce (GameObject go, float speed)
 	{
-		if (speed > TERMINAL_SPEED * FORCE_MULTIPLIER) {
-			speed = TERMINAL_SPEED * FORCE_MULTIPLIER;
-		} else if (speed < -TERMINAL_SPEED * FORCE_MULTIPLIER) {
-			speed = -TERMINAL_SPEED * FORCE_MULTIPLIER;
-		}
-
 		Vector3 moveTo = transform.position;
 		moveTo.z = 0;
 		go.GetComponent<Rigidbody> ().AddForce ((moveTo - go.transform.position) * speed * Time.deltaTime);
