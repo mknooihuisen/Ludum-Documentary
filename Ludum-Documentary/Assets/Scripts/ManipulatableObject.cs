@@ -32,6 +32,7 @@ public class ManipulatableObject : MonoBehaviour
 
 	void Start ()
 	{
+		// Don't let a radioactive object be declared to be unable to be radioactive
 		if (isRadioactive) {
 			canBeRadioactive = true;
 		}
@@ -42,21 +43,7 @@ public class ManipulatableObject : MonoBehaviour
 		if (transform.position.z != 0.0f) {
 			transform.position = new Vector3 (transform.position.x, transform.position.y, 0.0f);
 		}
-		if (canBeRadioactive && isRadioactive && !radioactiveColor) {
-			Material m = GetComponent<Renderer> ().material;
-			m.color = new Color (m.color.r, m.color.g + 0.5f, m.color.b);
-			radioactiveColor = true;
-			Transform trans = Instantiate (radioactive);
-			radioactiveObject = trans.gameObject;
-			radioactiveObject.transform.parent = this.gameObject.transform;
-			radioactiveObject.transform.localPosition = Vector3.zero;
-			radioactiveObject.transform.rotation = this.gameObject.transform.rotation;
-		} else if (!isRadioactive && radioactiveColor) {
-			Material m = GetComponent<Renderer> ().material;
-			m.color = new Color (m.color.r, m.color.g - 0.5f, m.color.b);
-			radioactiveColor = false;
-			Destroy (radioactiveObject);
-		}
+		giveRadioactiveColor ();
 	}
 
 	public void crush ()
@@ -67,5 +54,25 @@ public class ManipulatableObject : MonoBehaviour
 		}
 		gameObject.GetComponent<Rigidbody> ().isKinematic = false;
 		gameObject.GetComponent<Rigidbody> ().useGravity = true;
+	}
+
+	public void giveRadioactiveColor ()
+	{
+		if (canBeRadioactive && isRadioactive && !radioactiveColor) {
+			Material m = GetComponent<Renderer> ().material;
+			m.color = new Color (m.color.r, m.color.g + 0.4f, m.color.b);
+			radioactiveColor = true;
+			Transform trans = Instantiate (radioactive);
+			radioactiveObject = trans.gameObject;
+			radioactiveObject.transform.parent = this.gameObject.transform;
+			radioactiveObject.transform.localPosition = Vector3.zero;
+			radioactiveObject.transform.rotation = this.gameObject.transform.rotation;
+		} else if (!isRadioactive && radioactiveColor) {
+			Material m = GetComponent<Renderer> ().material;
+			m.color = new Color (m.color.r, m.color.g - 0.4f, m.color.b);
+			
+			radioactiveColor = false;
+			Destroy (radioactiveObject);
+		}
 	}
 }

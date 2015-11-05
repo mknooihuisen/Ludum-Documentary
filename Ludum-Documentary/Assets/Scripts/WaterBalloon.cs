@@ -4,23 +4,27 @@ using System.Collections;
 public class WaterBalloon : MonoBehaviour
 {
 
-	private float fullSpeed = 0.1f;
-	private float speed = 0.02f;
+	private float fullSpeed = 0.2f;
+	private static float START_SPEED = 0.01f;
+	private float speed = START_SPEED;
 
 	public Transform steam;
 	private GameObject steamObject;
 
 	void FixedUpdate ()
 	{
+		if (gameObject.GetComponent<Rigidbody> ().velocity.y < -0.5f) {
+			gameObject.GetComponent<Rigidbody> ().velocity = (new Vector3 (0, -0.5f, 0));
+		}
 		if (gameObject.GetComponent<ManipulatableObject> ().isRadioactive == true) {
 			gameObject.GetComponent<Rigidbody> ().AddForce (new Vector3 (0, speed, 0));
 			if (speed < fullSpeed) {
-				speed = speed + speed;
+				speed = speed + START_SPEED;
 				if (speed > fullSpeed) {
 					speed = fullSpeed;
 				}
 			}
-			if (steamObject == null && speed >= fullSpeed / 2) {
+			if (steamObject == null && speed >= fullSpeed) {
 				Transform trans = Instantiate (steam);
 				steamObject = trans.gameObject;
 				steamObject.transform.parent = this.gameObject.transform;
