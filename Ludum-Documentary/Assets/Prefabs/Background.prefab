@@ -85,20 +85,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa7a92097034a3b459d7d06a50c52803, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gravity: {fileID: 2800000, guid: c933f8caf2485394eadad5619c3954a2, type: 3}
   gravityOn: {fileID: 2800000, guid: 6fb965db2a139ad4dbd38b83cc4b0ffa, type: 3}
   gravityOff: {fileID: 2800000, guid: cce043b93059c14449aea8b33ecdf648, type: 3}
+  gravityShift: {fileID: 2800000, guid: c52d2f2997e008a40a5fd9ed232b56bc, type: 3}
   gravityShiftOn: {fileID: 2800000, guid: 407b06b035f2d9741b1289c870d13c1c, type: 3}
   gravityShiftOff: {fileID: 2800000, guid: 55666f795d43d924889ed2ffa293b6f9, type: 3}
+  current: {fileID: 2800000, guid: f4cd55c4f3182f34380cc665c9688324, type: 3}
   currentOn: {fileID: 2800000, guid: 77697f97dbdafb34895144b3fff2230d, type: 3}
   currentOff: {fileID: 2800000, guid: df6556359cb511d4a802143c781cd3f9, type: 3}
+  magnet: {fileID: 2800000, guid: 30160b661656838469775308f16cea2b, type: 3}
   magnetOn: {fileID: 2800000, guid: 88248cc9ed7aa6240a7b342e6296056b, type: 3}
   magnetOff: {fileID: 2800000, guid: 389dda4ca5a33354184413b4c2811aea, type: 3}
+  weakForce: {fileID: 2800000, guid: aabfb2fce08d7b7489e3fe5658843289, type: 3}
   weakForceOn: {fileID: 2800000, guid: 54307ec692912434ea138b82b291d2a5, type: 3}
   weakForceOff: {fileID: 2800000, guid: b6b3d0b1b4dad8a498d87632c6dda06d, type: 3}
+  strongForce: {fileID: 2800000, guid: 9ecea6fd08b926d40b60d4760f9cf46d, type: 3}
   strongForceOn: {fileID: 2800000, guid: c96e8f101c787894693865407a5b3fc0, type: 3}
   strongForceOff: {fileID: 2800000, guid: e98573de3876b6a4e95a66237b73d2c6, type: 3}
   cursorMode: 0
   hotSpot: {x: 0, y: 0}
+  characterDead: 0
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
