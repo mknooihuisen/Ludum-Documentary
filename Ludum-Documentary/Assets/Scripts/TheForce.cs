@@ -125,7 +125,7 @@ public class TheForce : MonoBehaviour
 			RemoveCaughtObjects ();
 			return;
 		}
-		if (cInput.GetKey ("GravityWell") && (force == GRAVITY_WELL || force == NO_FORCE)) {
+		if (levelSettings.gravWellActive && cInput.GetKey ("GravityWell") && (force == GRAVITY_WELL || force == NO_FORCE)) {
 			force = GRAVITY_WELL;
 			PlaceForce ();
 			if (cInput.GetKey ("Up")) {
@@ -135,7 +135,7 @@ public class TheForce : MonoBehaviour
 			} else {
 				RemoveCaughtObjects ();
 			}
-		} else if (cInput.GetKey ("Magnetic") && (force == MAGNETIC || force == NO_FORCE)) {
+		} else if (levelSettings.magActive && cInput.GetKey ("Magnetic") && (force == MAGNETIC || force == NO_FORCE)) {
 			force = MAGNETIC;
 			PlaceForce ();
 			if (cInput.GetKey ("Up")) {
@@ -145,7 +145,7 @@ public class TheForce : MonoBehaviour
 			} else {
 				RemoveCaughtObjects ();
 			}
-		} else if (cInput.GetKey ("GravityShift") && (force == GRAVITY_SHIFT || force == NO_FORCE)) {
+		} else if (levelSettings.gravShiftActive && cInput.GetKey ("GravityShift") && (force == GRAVITY_SHIFT || force == NO_FORCE)) {
 			force = GRAVITY_SHIFT;
 			PlaceForce ();
 			if (cInput.GetKey ("Up")) {
@@ -157,7 +157,7 @@ public class TheForce : MonoBehaviour
 			}
 
 			// These forces are applied to individual objects
-		} else if (cInput.GetKey ("Electric") && (force == ELECTRIC || force == NO_FORCE)) {
+		} else if (levelSettings.elecActive && cInput.GetKey ("Electric") && (force == ELECTRIC || force == NO_FORCE)) {
 			GameObject hitObject = ForceOnObject ();
 			if (hitObject != null && hitObject.GetComponent<ManipulatableObject> ().powerable) {
 				if (manipulated == null) {
@@ -185,7 +185,7 @@ public class TheForce : MonoBehaviour
 					manipulated = null;
 				}
 			}
-		} else if (cInput.GetKey ("Weak") && (force == WEAK || force == NO_FORCE)) {
+		} else if (levelSettings.weakActive && cInput.GetKey ("Weak") && (force == WEAK || force == NO_FORCE)) {
 			GameObject hitObject = ForceOnObject ();
 			if (hitObject != null && hitObject.GetComponent<ManipulatableObject> ().canBeRadioactive) {
 				if (manipulated == null) {
@@ -211,7 +211,7 @@ public class TheForce : MonoBehaviour
 					manipulated = null;
 				}
 			}
-		} else if (cInput.GetKey ("Strong") && (force == STRONG || force == NO_FORCE)) {
+		} else if (levelSettings.strongActive && cInput.GetKey ("Strong") && (force == STRONG || force == NO_FORCE)) {
 			GameObject hitObject = ForceOnObject ();
 			if (hitObject != null) {
 				if (manipulated == null) {

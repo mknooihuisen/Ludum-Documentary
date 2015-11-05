@@ -102,6 +102,7 @@ public class CameraMovement : MonoBehaviour
 	void freeze (bool freeze)
 	{
 		if (freeze) {
+			character.GetComponent<CharacterNavigate> ().previousVelocity = Vector3.zero;
 			correctRigidbodies.RemoveRange (0, correctRigidbodies.Count);
 			Rigidbody[] rigidbodies = FindObjectsOfType<Rigidbody> ();
 			foreach (Rigidbody rb in rigidbodies) {
@@ -116,6 +117,7 @@ public class CameraMovement : MonoBehaviour
 				rb.isKinematic = false;
 				rb.velocity = bd.velocity;
 			}
+			character.GetComponent<CharacterNavigate> ().previousVelocity = character.GetComponent<Rigidbody> ().velocity;
 		}
 	}
 

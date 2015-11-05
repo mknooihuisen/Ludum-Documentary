@@ -26,7 +26,7 @@ public class CharacterNavigate : MonoBehaviour
 
 	public float terminalVelocity;
 	private float distToGround;
-	private Vector3 previousVelocity;
+	public Vector3 previousVelocity { get; set; }
 
 	//Death variables
 	public bool dead;
@@ -261,6 +261,7 @@ public class CharacterNavigate : MonoBehaviour
 
 	public void die ()
 	{
+		Time.timeScale = 0;
 		dead = true;
 		rb.constraints = RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezePositionZ;
 		levelSettings.isPlayerDead = true;

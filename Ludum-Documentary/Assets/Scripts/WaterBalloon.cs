@@ -4,8 +4,8 @@ using System.Collections;
 public class WaterBalloon : MonoBehaviour
 {
 
-	private float fullSpeed = 0.5f;
-	private float speed = 0.01f;
+	private float fullSpeed = 0.1f;
+	private float speed = 0.02f;
 
 	public Transform steam;
 	private GameObject steamObject;

@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class LevelSettingsManager : MonoBehaviour {
+public class LevelSettingsManager : MonoBehaviour
+{
 
-	private bool gravActive, magActive, weakActive, strongActive;
+	public bool gravWellActive = true, gravShiftActive = true, magActive = true, elecActive = true, weakActive = true, strongActive = true;
 
 	public bool isPlayerDead { get; set; }
 
@@ -15,7 +16,8 @@ public class LevelSettingsManager : MonoBehaviour {
 	public float energy = 10000.0f;
 
 	// Use this for initialization
-	void Start () {
+	void Start ()
+	{
 		isPlayerDead = false;
 
 		//get character
@@ -26,7 +28,8 @@ public class LevelSettingsManager : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+	{
 	
 		if (isPlayerDead) {
 			//Debug.Log("Ouch!");
@@ -38,30 +41,32 @@ public class LevelSettingsManager : MonoBehaviour {
 		}
 	}
 
-	private void respawn() {
+	private void respawn ()
+	{
 		if (startPoint != null) {
 
-			character.GetComponent<Rigidbody>().velocity = Vector3.zero;
-			character.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+			character.GetComponent<Rigidbody> ().velocity = Vector3.zero;
+			character.GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 
 			character.transform.position = startPoint.transform.position;
 
-			character.GetComponent<Rigidbody>().velocity = Vector3.zero;
-			character.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+			character.GetComponent<Rigidbody> ().velocity = Vector3.zero;
+			character.GetComponent<Rigidbody> ().angularVelocity = Vector3.zero;
 
-			character.GetComponent<CharacterNavigate>().dead = false;
+			character.GetComponent<CharacterNavigate> ().dead = false;
 
 			//re-add cached navs
-			NavPointCache script = character.GetComponent<NavPointCache>();
+			NavPointCache script = character.GetComponent<NavPointCache> ();
 			List<GameObject> cache = script.cache;
 
-			foreach(GameObject go in cache) {
-				go.SetActive(true);
+			foreach (GameObject go in cache) {
+				go.SetActive (true);
 			}
 		}
 	}
 
-	public void toggleActive() {
+	public void toggleActive ()
+	{
 
 	}
 }
