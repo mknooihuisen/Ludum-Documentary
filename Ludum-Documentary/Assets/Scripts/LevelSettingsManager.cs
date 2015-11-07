@@ -15,6 +15,8 @@ public class LevelSettingsManager : MonoBehaviour
 
 	public float energy = 10000.0f;
 
+	public float levelBottom = -100.0f;
+
 	// Use this for initialization
 	void Start ()
 	{

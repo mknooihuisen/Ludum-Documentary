@@ -48,16 +48,18 @@ public class NavPointBehavior : MonoBehaviour
 
 	void Start ()
 	{
-
 		if (jumpPower == 0.0f) {
 			jumpPower = 1.0f;
 		}
 
-		RaycastHit hit;
-		if (Physics.Raycast (transform.position, Vector3.down, out hit, aboveGroundDist)) {
-			float newPlace = hit.point.y + distToGround;
-			Vector3 current = transform.position;
-			transform.position = new Vector3 (current.x, newPlace, current.z);
+		// Being a MovingNavPoint overrides the ground check
+		if (GetComponent<MovingNavPoint> () == null) {
+			RaycastHit hit;
+			if (Physics.Raycast (transform.position, Vector3.down, out hit, aboveGroundDist)) {
+				float newPlace = hit.point.y + distToGround;
+				Vector3 current = transform.position;
+				transform.position = new Vector3 (current.x, newPlace, current.z);
+			}
 		}
 
 		//if jumping at this nav, simulate it now

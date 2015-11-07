@@ -15,8 +15,10 @@ public class WaterBalloon : MonoBehaviour
 	{
 		if (gameObject.GetComponent<Rigidbody> ().velocity.y < -0.5f) {
 			gameObject.GetComponent<Rigidbody> ().velocity = (new Vector3 (0, -0.5f, 0));
+		} else if (!gameObject.GetComponent<ManipulatableObject> ().isRadioactive && gameObject.GetComponent<Rigidbody> ().velocity.y > 0) {
+			gameObject.GetComponent<Rigidbody> ().velocity = (new Vector3 (0, -0.05f, 0));
 		}
-		if (gameObject.GetComponent<ManipulatableObject> ().isRadioactive == true) {
+		if (gameObject.GetComponent<ManipulatableObject> ().isRadioactive) {
 			gameObject.GetComponent<Rigidbody> ().AddForce (new Vector3 (0, speed, 0));
 			if (speed < fullSpeed) {
 				speed = speed + START_SPEED;

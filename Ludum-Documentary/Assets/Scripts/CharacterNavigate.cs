@@ -47,11 +47,19 @@ public class CharacterNavigate : MonoBehaviour
 
 	private bool endReached;
 
+	private GameObject obstructingObject;
+
+	private static float TIME_TO_RESET_OBSTRUCTION = 0.75f;
+
+	private float obstructionTimer;
+
 	// Use this for initialization
 	void Start ()
 	{
 		endReached = false;
 		facingLeft = false;
+		obstructionTimer = 0;
+
 		//Dynamically grab level settings
 		GameObject [] temp = GameObject.FindGameObjectsWithTag ("GameController");
 		foreach (GameObject go in temp) {
@@ -91,6 +99,9 @@ public class CharacterNavigate : MonoBehaviour
 	// Update is called once per frame
 	void FixedUpdate ()
 	{
+		if (levelSettings.isPlayerDead) {
+			die ();
+		}
 		if (endReached) {
 			return;
 		}
@@ -123,7 +134,13 @@ public class CharacterNavigate : MonoBehaviour
 			}
 
 			if (timer >= walkSpeed && !dead) {
-				rb.AddForce (transform.forward * speed);
+				if (stepCheck ()) {
+					rb.AddForce (transform.up * speed * 3);
+					rb.AddForce (transform.forward * speed * 2);
+					Debug.Log ("JUMP!!!");
+				} else {
+					rb.AddForce (transform.forward * speed);
+				}
 				timer = 0.0f;
 			}
 			timer += Time.deltaTime;
@@ -257,6 +274,40 @@ public class CharacterNavigate : MonoBehaviour
 
 		return null;
 
+	}
+
+	public bool stepCheck ()
+	{
+		obstructionTimer += Time.deltaTime;
+		RaycastHit hit;
+		Vector3 feetPosition = new Vector3 (transform.position.x, transform.position.y - 0.975f, transform.position.z);
+		Vector3 kneePosition = new Vector3 (transform.position.x, transform.position.y - 0.5f, transform.position.z);
+		if (Physics.Raycast (feetPosition, Vector3.right, out hit, 1.0f)) {
+
+			// Don't jump repeatedly to get over the same object, wait a bit
+			if (obstructingObject != null && hit.transform.gameObject == obstructingObject) {
+				if (obstructionTimer < TIME_TO_RESET_OBSTRUCTION) {
+					Debug.Log ("Obstruction Timer at " + obstructionTimer + " for " + hit.transform.gameObject.name);
+					return false;
+				} else {
+					Debug.Log ("Obstruction Found! " + hit.transform.gameObject.name);
+					obstructionTimer = 0;
+				}
+			} else {
+				obstructingObject = hit.transform.gameObject;
+				obstructionTimer = 0;
+			}
+			Vector3 obstructionPosition = hit.transform.position;
+			if (Physics.Raycast (kneePosition, Vector3.right, out hit, 2.0f)) {
+				if (hit.transform.position != obstructionPosition) {
+					return true;
+				}
+			} else {
+				return true;
+			}
+		}
+		obstructionTimer = 0;
+		return false;
 	}
 
 	public void die ()

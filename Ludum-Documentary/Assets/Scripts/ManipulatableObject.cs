@@ -30,8 +30,17 @@ public class ManipulatableObject : MonoBehaviour
 
 	private GameObject radioactiveObject; // The gameobject of the radioactive particle effect prefab
 
+	private LevelSettingsManager levelSettings; // The level settings
+
 	void Start ()
 	{
+		GameObject [] temp = GameObject.FindGameObjectsWithTag ("GameController");
+		foreach (GameObject go in temp) {
+			if (go.name == "_LevelSettings") {
+				levelSettings = go.GetComponent<LevelSettingsManager> ();
+			}
+		}
+
 		// Don't let a radioactive object be declared to be unable to be radioactive
 		if (isRadioactive) {
 			canBeRadioactive = true;
@@ -40,6 +49,15 @@ public class ManipulatableObject : MonoBehaviour
 
 	void Update ()
 	{
+		// If this object falls below the level boundry, disable it
+		if (transform.position.y < levelSettings.levelBottom) {
+			Debug.Log ("DESTROY!");
+			if (this.gameObject.name == "Character") {
+				levelSettings.isPlayerDead = true;
+			} else {
+				this.gameObject.SetActive (false);
+			}
+		}
 		if (transform.position.z != 0.0f) {
 			transform.position = new Vector3 (transform.position.x, transform.position.y, 0.0f);
 		}
