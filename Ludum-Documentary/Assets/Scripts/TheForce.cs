@@ -2,8 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class TheForce : MonoBehaviour
-{
+public class TheForce : MonoBehaviour {
 	private static int BACKGROUND = 15;
 	private static int MANIPULATABLE = 14;
 
@@ -50,8 +49,7 @@ public class TheForce : MonoBehaviour
 
 	private float energyDrain;
 
-	void Start ()
-	{
+	void Start () {
 		GameObject [] temp = GameObject.FindGameObjectsWithTag ("GameController");
 		foreach (GameObject go in temp) {
 			if (go.name == "_LevelSettings") {
@@ -62,8 +60,7 @@ public class TheForce : MonoBehaviour
 		energyDrain = 0.0f;
 	}
 
-	GameObject PlaceForce ()
-	{
+	GameObject PlaceForce () {
 		Ray ray = Camera.main.ScreenPointToRay (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, 0));
 		RaycastHit hit;
 		GameObject hitObject = null;
@@ -76,8 +73,7 @@ public class TheForce : MonoBehaviour
 		return hitObject;
 	}
 
-	GameObject GenerateObject ()
-	{
+	GameObject GenerateObject () {
 		Ray ray = Camera.main.ScreenPointToRay (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, 0));
 		RaycastHit hit;
 		GameObject hitObject = null;
@@ -99,8 +95,7 @@ public class TheForce : MonoBehaviour
 	/**
 	 * Uses a force on the selected object
 	 */
-	GameObject ForceOnObject ()
-	{
+	GameObject ForceOnObject () {
 		Ray ray = Camera.main.ScreenPointToRay (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, 0));
 		RaycastHit hit;
 		GameObject hitObject = null;
@@ -110,8 +105,7 @@ public class TheForce : MonoBehaviour
 		return hitObject;
 	}
 
-	void FixedUpdate ()
-	{
+	void FixedUpdate () {
 		bool spendEnergy = true;
 		if (levelSettings.isPlayerDead || levelSettings.energy <= 0.0f || characterDead) {
 			if (this.transform.position != new Vector3 (0, -100.0f, -100.0f)) {
@@ -265,7 +259,14 @@ public class TheForce : MonoBehaviour
 
 		// Spend energy if we are using it
 		if (spendEnergy && (cInput.GetKey ("Up") || cInput.GetKey ("Down")) && force != NO_FORCE) {
+			// Gravity Well is twice as expensive if only used to move the character
+			if (caught.Count == 1 && caught [0].name.Equals ("Character") && force == GRAVITY_WELL) {
+				energyDrain += GRAVITY_WELL_DRAIN;
+			}
 			levelSettings.energy -= energyDrain;
+			if (levelSettings.energy < 0.0f) {
+				levelSettings.energy = 0;
+			}
 			Debug.Log (levelSettings.energy + " " + energyDrain);
 		}
 	}
@@ -273,8 +274,7 @@ public class TheForce : MonoBehaviour
 	/**
 	 * Highlights objects that are hovered over
 	 */
-	void Select (GameObject select, bool deselect)
-	{
+	void Select (GameObject select, bool deselect) {
 		if (deselect) {
 			if (select != null) {
 				Renderer r = select.GetComponent<Renderer> ();
@@ -291,8 +291,7 @@ public class TheForce : MonoBehaviour
 	/**
 	 * The gravity well force
 	 */
-	void Gravitate (bool towards)
-	{
+	void Gravitate (bool towards) {
 		energyDrain += (GRAVITY_WELL_DRAIN * Time.deltaTime);
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
@@ -335,8 +334,7 @@ public class TheForce : MonoBehaviour
 	/**
 	 * The gravity shift (double or off) force
 	 */
-	void GravityShift (bool increase)
-	{
+	void GravityShift (bool increase) {
 		energyDrain += (GRAVITY_SHIFT_DRAIN * Time.deltaTime);
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
@@ -365,8 +363,7 @@ public class TheForce : MonoBehaviour
 	/**
 	 * The magnetization force
 	 */
-	void Magnetize (bool towards)
-	{
+	void Magnetize (bool towards) {
 		energyDrain += (MAGNETIC_DRAIN * Time.deltaTime);
 		GameObject[] objs = FindManipulatableObjects ();
 		foreach (GameObject go in objs) {
@@ -407,8 +404,7 @@ public class TheForce : MonoBehaviour
 	/**
 	 * Creates an array of manipulatable objects
 	 */
-	GameObject[] FindManipulatableObjects ()
-	{
+	GameObject[] FindManipulatableObjects () {
 		GameObject[] objs = FindObjectsOfType<GameObject> ();
 		List<GameObject> maniplatable = new List<GameObject> ();
 		for (int i = 0; i < objs.Length; i++) {
@@ -424,8 +420,7 @@ public class TheForce : MonoBehaviour
 	/**
 	 * Moves an object with translation, rather than using forces
 	 */
-	void MoveAtSpeed (GameObject go, float speed)
-	{
+	void MoveAtSpeed (GameObject go, float speed) {
 		Vector3 moveTo = transform.position;
 		moveTo.z = 0;
 		go.transform.position = Vector3.MoveTowards (go.transform.position, moveTo, speed * Time.deltaTime);
@@ -438,8 +433,7 @@ public class TheForce : MonoBehaviour
 	/**
 	 * Moves an object using forces, rather than translation
 	 */
-	void MoveWithForce (GameObject go, float speed)
-	{
+	void MoveWithForce (GameObject go, float speed) {
 		Vector3 moveTo = transform.position;
 		moveTo.z = 0;
 		go.GetComponent<Rigidbody> ().AddForce ((moveTo - go.transform.position) * speed * Time.deltaTime);
@@ -452,8 +446,7 @@ public class TheForce : MonoBehaviour
 	/**
 	 * Removes all objects caught by a force when the force ends or the player dies
 	 */
-	void RemoveCaughtObjects ()
-	{
+	void RemoveCaughtObjects () {
 		if (caught.Count > 0) {
 			foreach (GameObject go in caught) {
 				go.GetComponent<Rigidbody> ().useGravity = true;

@@ -29,7 +29,7 @@ public class EnergyBar : MonoBehaviour
 	{
 		setPercent (levelSettings.energy / totalEnergy);
 		int energyInt = (int)levelSettings.energy + 0;
-		energyTotal.text = "" + (energyInt);
+		energyTotal.text = "" + string.Format ("{0:n0}", energyInt);
 	}
 
 	void setPercent (float percent)

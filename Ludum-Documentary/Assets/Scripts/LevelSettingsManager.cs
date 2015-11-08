@@ -11,6 +11,8 @@ public class LevelSettingsManager : MonoBehaviour
 
 	public GameObject startPoint { get; set; }
 
+	public bool endReached { get; set; }
+
 	private GameObject character;
 
 	public float energy = 10000.0f;

@@ -30,7 +30,7 @@ public class WaterBalloon : MonoBehaviour
 				Transform trans = Instantiate (steam);
 				steamObject = trans.gameObject;
 				steamObject.transform.parent = this.gameObject.transform;
-				steamObject.transform.localPosition = Vector3.zero + new Vector3 (0, 8.0f, 0);
+				steamObject.transform.localPosition = Vector3.zero + new Vector3 (0, 10.0f, 0);
 			}
 		} else {
 			if (steamObject != null) {

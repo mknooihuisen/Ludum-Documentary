@@ -14,7 +14,7 @@ public class TrampolinePhysics : MonoBehaviour
 
 	private Vector3 compressedScale;
 
-	private static int BOUNCEBACK_FRAMES = 4;
+	private static int BOUNCEBACK_FRAMES = 5;
 
 	void Start ()
 	{
@@ -32,6 +32,10 @@ public class TrampolinePhysics : MonoBehaviour
 			player.velocity = new Vector3 (player.velocity.x, 0, 0);
 			this.transform.localScale = compressedScale;
 			framesTaken = 0;
+			// Make it so hitting the trampoline can't kill the player
+			if (player.name == "Character") {
+				player.GetComponent<CharacterNavigate> ().previousVelocity = player.GetComponent<Rigidbody> ().velocity;
+			}
 		}
 	}
 
@@ -39,6 +43,10 @@ public class TrampolinePhysics : MonoBehaviour
 	{
 		if (player != null) {
 			player.velocity = new Vector3 (player.velocity.x, bounceback, 0);
+			// Make it so hitting the trampoline can't kill the player
+			if (player.name == "Character") {
+				player.GetComponent<CharacterNavigate> ().previousVelocity = player.GetComponent<Rigidbody> ().velocity;
+			}
 			player = null;
 		}
 		if (framesTaken > BOUNCEBACK_FRAMES) {

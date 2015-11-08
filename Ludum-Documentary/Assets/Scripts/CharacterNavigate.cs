@@ -45,18 +45,15 @@ public class CharacterNavigate : MonoBehaviour
 
 	private bool facingLeft;
 
-	private bool endReached;
-
 	private GameObject obstructingObject;
 
-	private static float TIME_TO_RESET_OBSTRUCTION = 0.75f;
+	private static float TIME_TO_RESET_OBSTRUCTION = 0.4f;
 
 	private float obstructionTimer;
 
 	// Use this for initialization
 	void Start ()
 	{
-		endReached = false;
 		facingLeft = false;
 		obstructionTimer = 0;
 
@@ -102,16 +99,21 @@ public class CharacterNavigate : MonoBehaviour
 		if (levelSettings.isPlayerDead) {
 			die ();
 		}
-		if (endReached) {
-			return;
-		}
 
 		checkGround ();
 
+		if (levelSettings.endReached || levelSettings.energy <= 0) {
+			// Put on the breaks! We've either reached the end or run out of energy!
+			if ((rb.velocity.x > 1.0f || rb.velocity.x < -1.0f) && onGround) {
+				rb.velocity = new Vector3 (rb.velocity.x / 1.1f, rb.velocity.y, 0);
+			}
+			return;
+		}
+
 		//Detect Terminal Velocity
-		if (Mathf.Abs (previousVelocity.x - rb.velocity.x) > terminalVelocity || Mathf.Abs (previousVelocity.y - rb.velocity.y) > terminalVelocity)
+		if (Mathf.Abs (previousVelocity.x - rb.velocity.x) > terminalVelocity || Mathf.Abs (previousVelocity.y - rb.velocity.y) > terminalVelocity) {
 			die ();
-		else {
+		} else {
 			previousVelocity = rb.velocity;
 		}
 
@@ -212,7 +214,7 @@ public class CharacterNavigate : MonoBehaviour
 
 	void reachedEnd ()
 	{
-		endReached = true;
+		levelSettings.endReached = true;
 		Debug.Log ("You Win!");
 	}
 
